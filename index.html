@@ -1744,13 +1744,33 @@ address,caption,cite,code,dfn,em,var {font-style: normal;font-weight: normal;}
             window.momentTimezone = 'Asia/Tokyo';
             window.PoELocale = 'ko_KR';
 
-            require.config({
-                baseUrl: "https://web.poecdn.com/js/",
-                paths : {"plugins":"plugins.99960db81dd8fab88a8fc5721bf838c80d75c4c3","main":"main.26fa42c2746af31024632f1fb89682da438a756f","skilltree":"skilltree.18ccd8bc135dda5d10cd8f4b4a03f7ea32de9529","trade":"trade.8bc6a99e86023bad225a4ac017bee24a0b07397f","itemfilter":"itemfilter.1f799381bae84165548c4793b5345c599278303c","notice":"notice.c9db72f8c4b21c28088546508836527e3913f4ec","adminprofile":"adminprofile.84b5f8ccf1a065d54966754564356e02f2ae21fd"},
-                shim: {"main":{"deps":["config","plugins"]},"plugins":{"deps":["config"]},"notice":{"deps":["config"]}}
-            });
+require.config({
+    baseUrl: "https://web.poecdn.com/js/",
+    paths: {
+        "plugins": "plugins.99960db81dd8fab88a8fc5721bf838c80d75c4c3",
+        "main": "main.26fa42c2746af31024632f1fb89682da438a756f",
+        "skilltree": "skilltree.18ccd8bc135dda5d10cd8f4b4a03f7ea32de9529",
+        "itemfilter": "itemfilter.1f799381bae84165548c4793b5345c599278303c",
+        "notice": "notice.c9db72f8c4b21c28088546508836527e3913f4ec",
+        "adminprofile": "adminprofile.84b5f8ccf1a065d54966754564356e02f2ae21fd"
+    },
+    shim: {
+        "main": {
+            deps: ["config", "plugins"]
+        },
+        "plugins": {
+            deps: ["config"]
+        },
+        "notice": {
+            deps: ["config"]
+        }
+    }
+});
             require(["main"], function(){require(["trade"], function(t){    t({"tab":"search","realm":"poe2","realms":[],"leagues":[{"id":"Standard","realm":"poe2","text":"PoE2 - Standard"},{"id":"Hardcore","realm":"poe2","text":"PoE2 - Hardcore"}],"news":[],"basePath":"/trade2","patchStatic":{"propertyFilters":[]}});});});
     //-->
-</script><iframe allow="join-ad-interest-group" data-tagging-id="AW-751519832" data-load-time="1735787738392" height="0" width="0" src="https://td.doubleclick.net/td/rul/751519832?random=1735787738378&amp;cv=11&amp;fst=1735787738378&amp;fmt=3&amp;bg=ffffff&amp;guid=ON&amp;async=1&amp;gtm=45be4cc1za200&amp;gcd=13l3l3l3l1l1&amp;dma=0&amp;tag_exp=101925629~102067555~102067808~102081485~102198178&amp;u_w=1920&amp;u_h=1080&amp;url=https%3A%2F%2Fpoe.game.daum.net%2Ftrade2&amp;ref=https%3A%2F%2Fpoe2.game.daum.net%2F&amp;hn=www.googleadservices.com&amp;frm=0&amp;tiba=Path%20of%20Exile%20%7C%20Daum%20%EA%B2%8C%EC%9E%84&amp;npa=0&amp;pscdl=noapi&amp;auid=1996395056.1735787738&amp;uaa=x86&amp;uab=64&amp;uafvl=Google%2520Chrome%3B131.0.6778.140%7CChromium%3B131.0.6778.140%7CNot_A%2520Brand%3B24.0.0.0&amp;uamb=0&amp;uam=&amp;uap=Windows&amp;uapv=10.0.0&amp;uaw=0&amp;fledge=1&amp;data=event%3Dgtag.config" style="display: none; visibility: hidden;"></iframe><iframe allow="join-ad-interest-group" data-tagging-id="AW-751519832/yLvkCPXm3aUBENiQreYC" data-load-time="1735787738399" height="0" width="0" src="https://td.doubleclick.net/td/rul/751519832?random=1735787738395&amp;cv=11&amp;fst=1735787738395&amp;fmt=3&amp;bg=ffffff&amp;guid=ON&amp;async=1&amp;gtm=45be4cc1za200&amp;gcd=13l3l3l3l1l1&amp;dma=0&amp;tag_exp=101925629~102067555~102067808~102081485~102198178&amp;u_w=1920&amp;u_h=1080&amp;url=https%3A%2F%2Fpoe.game.daum.net%2Ftrade2&amp;ref=https%3A%2F%2Fpoe2.game.daum.net%2F&amp;label=yLvkCPXm3aUBENiQreYC&amp;hn=www.googleadservices.com&amp;frm=0&amp;tiba=Path%20of%20Exile%20%7C%20Daum%20%EA%B2%8C%EC%9E%84&amp;value=1&amp;currency_code=KRW&amp;npa=0&amp;pscdl=noapi&amp;auid=1996395056.1735787738&amp;uaa=x86&amp;uab=64&amp;uafvl=Google%2520Chrome%3B131.0.6778.140%7CChromium%3B131.0.6778.140%7CNot_A%2520Brand%3B24.0.0.0&amp;uamb=0&amp;uam=&amp;uap=Windows&amp;uapv=10.0.0&amp;uaw=0&amp;fledge=1&amp;data=event%3Dconversion" style="display: none; visibility: hidden;"></iframe><iframe height="0" width="0" style="display: none; visibility: hidden;"></iframe>
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="trade.js"></script><iframe allow="join-ad-interest-group" data-tagging-id="AW-751519832" data-load-time="1735787738392" height="0" width="0" src="https://td.doubleclick.net/td/rul/751519832?random=1735787738378&amp;cv=11&amp;fst=1735787738378&amp;fmt=3&amp;bg=ffffff&amp;guid=ON&amp;async=1&amp;gtm=45be4cc1za200&amp;gcd=13l3l3l3l1l1&amp;dma=0&amp;tag_exp=101925629~102067555~102067808~102081485~102198178&amp;u_w=1920&amp;u_h=1080&amp;url=https%3A%2F%2Fpoe.game.daum.net%2Ftrade2&amp;ref=https%3A%2F%2Fpoe2.game.daum.net%2F&amp;hn=www.googleadservices.com&amp;frm=0&amp;tiba=Path%20of%20Exile%20%7C%20Daum%20%EA%B2%8C%EC%9E%84&amp;npa=0&amp;pscdl=noapi&amp;auid=1996395056.1735787738&amp;uaa=x86&amp;uab=64&amp;uafvl=Google%2520Chrome%3B131.0.6778.140%7CChromium%3B131.0.6778.140%7CNot_A%2520Brand%3B24.0.0.0&amp;uamb=0&amp;uam=&amp;uap=Windows&amp;uapv=10.0.0&amp;uaw=0&amp;fledge=1&amp;data=event%3Dgtag.config" style="display: none; visibility: hidden;"></iframe><iframe allow="join-ad-interest-group" data-tagging-id="AW-751519832/yLvkCPXm3aUBENiQreYC" data-load-time="1735787738399" height="0" width="0" src="https://td.doubleclick.net/td/rul/751519832?random=1735787738395&amp;cv=11&amp;fst=1735787738395&amp;fmt=3&amp;bg=ffffff&amp;guid=ON&amp;async=1&amp;gtm=45be4cc1za200&amp;gcd=13l3l3l3l1l1&amp;dma=0&amp;tag_exp=101925629~102067555~102067808~102081485~102198178&amp;u_w=1920&amp;u_h=1080&amp;url=https%3A%2F%2Fpoe.game.daum.net%2Ftrade2&amp;ref=https%3A%2F%2Fpoe2.game.daum.net%2F&amp;label=yLvkCPXm3aUBENiQreYC&amp;hn=www.googleadservices.com&amp;frm=0&amp;tiba=Path%20of%20Exile%20%7C%20Daum%20%EA%B2%8C%EC%9E%84&amp;value=1&amp;currency_code=KRW&amp;npa=0&amp;pscdl=noapi&amp;auid=1996395056.1735787738&amp;uaa=x86&amp;uab=64&amp;uafvl=Google%2520Chrome%3B131.0.6778.140%7CChromium%3B131.0.6778.140%7CNot_A%2520Brand%3B24.0.0.0&amp;uamb=0&amp;uam=&amp;uap=Windows&amp;uapv=10.0.0&amp;uaw=0&amp;fledge=1&amp;data=event%3Dconversion" style="display: none; visibility: hidden;"></iframe><iframe height="0" width="0" style="display: none; visibility: hidden;"></iframe>
 
 <img src="https://accounts.game.daum.net/login/record?domain=poe.game.daum.net&amp;gamecode=poe" style="display: none;"><div id="cboxOverlay" style="display: none;"></div><div id="colorbox" class="" role="dialog" tabindex="-1" style="display: none;"><div id="cboxWrapper"><div><div id="cboxTopLeft" style="float: left;"></div><div id="cboxTopCenter" style="float: left;"></div><div id="cboxTopRight" style="float: left;"></div></div><div style="clear: left;"><div id="cboxMiddleLeft" style="float: left;"></div><div id="cboxContent" style="float: left;"><div id="cboxTitle" style="float: left;"></div><div id="cboxCurrent" style="float: left;"></div><button type="button" id="cboxPrevious"></button><button type="button" id="cboxNext"></button><button type="button" id="cboxSlideshow"></button><div id="cboxLoadingOverlay" style="float: left;"></div><div id="cboxLoadingGraphic" style="float: left;"></div></div><div id="cboxMiddleRight" style="float: left;"></div></div><div style="clear: left;"><div id="cboxBottomLeft" style="float: left;"></div><div id="cboxBottomCenter" style="float: left;"></div><div id="cboxBottomRight" style="float: left;"></div></div></div><div style="position: absolute; width: 9999px; visibility: hidden; display: none; max-width: none;"></div></div></body></html>
