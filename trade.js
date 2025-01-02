@@ -8150,21 +8150,31 @@ define("PoE/Trade/App", ["require", "es6-promise", "vue", "vuex", "vue-infinite-
             u.isEmpty(d.propertyFilters) ? fetch("filters.json").then(res => res.json()) : null
         ).then((function($, T, E, O) {
             if ($) {
+                console.log("Known Items Data:", $.result); // 데이터 로그
                 d.knownItems = $.result;
+            } else {
+                console.warn("Known Items data ($) is undefined or empty.");
             }
+            
             if (T) {
+                console.log("Known Stats Data:", T.result); // 데이터 로그
                 d.knownStats = T.result;
+            } else {
+                console.warn("Known Stats data (T) is undefined or empty.");
             }
+            
             if (E) {
+                console.log("Exchange Data:", E.result); // 데이터 로그
                 d.exchangeData = E.result;
+            } else {
+                console.warn("Exchange Data (E) is undefined or empty.");
             }
+            
             if (O) {
+                console.log("Property Filters Data:", O.result); // 데이터 로그
                 d.propertyFilters = O.result;
-            }
-            if (O && "success" == O[1]) {
-                var R, N, H = parseInt(null !== (R = null === (N = O[2].getResponseHeader("Cache-Control")) || void 0 === N ? void 0 : N.match(/max-age=(\d+)/)[1]) && void 0 !== R ? R : 300);
-                d.propertyFilters = O[0].result,
-                l.set("filters", d.propertyFilters, H + 1)
+            } else {
+                console.warn("Property Filters data (O) is undefined or empty.");
             }
             u.each(d.knownStats, (function(t) {
                 d.knownStatsFlat = u.extend(d.knownStatsFlat, u.indexBy(t.entries, "id")),
