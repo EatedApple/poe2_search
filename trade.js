@@ -8345,7 +8345,11 @@ define("PoE/Trade/App", ["require", "es6-promise", "vue", "vuex", "vue-infinite-
                 },
                 mounted: function() {
                     var n = this;
-                    this.$root.$refs.toastr.defaultPosition = "toast-bottom-center",
+                     if (this.$refs.toastr) {
+                        this.$refs.toastr.defaultPosition = "toast-bottom-center";
+                    } else {
+                        console.error("Toastr ref is undefined");
+                    }   
                     this.ui.title = document.title,
                     window.onpopstate = function(t) {
                         n.load(t.state)
