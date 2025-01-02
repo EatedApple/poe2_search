@@ -1,6 +1,10 @@
 {
     "result": [
         {
+            "id": "stats",
+            "title": "능력치 필터"
+        },
+        {
             "id": "type_filters",
             "title": "유형 필터",
             "filters": [
