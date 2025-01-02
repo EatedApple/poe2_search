@@ -8141,10 +8141,10 @@ define("PoE/Trade/App", ["require", "es6-promise", "vue", "vuex", "vue-infinite-
         return e.mixin({
             methods: {
                 apiUrl: n
-            }
+            } 
         }),
         a.when(
-            u.isEmpty(d.knownItems) ? a.ajax("https://poe.game.daum.net/api/trade2/data/items").then(res => res.json()) : null,
+            u.isEmpty(d.knownItems) ? fetch("items.json").then(res => res.json()) : null,
             u.isEmpty(d.knownStats) ? fetch("stats.json").then(res => res.json()) : null,
             u.isEmpty(d.exchangeData) ? fetch("static.json").then(res => res.json()) : null,
             u.isEmpty(d.propertyFilters) ? fetch("filters.json").then(res => res.json()) : null
