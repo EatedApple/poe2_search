@@ -7565,838 +7565,837 @@ define("bootstrap-tooltip", ["plugins"], (function() {})),
 		}
 	})),
 	define("PoE/Trade/App", ["require", "es6-promise", "vue", "vuex", "vue-infinite-scroll", "vue-multiselect", "vue-toastr", "vue-clipboard", "plugins", "bootstrap-tooltip", "Underscore", "moment", "lscache", "PoE/Helpers", "PoE/Item/Markup/markup", "favico", "PoE/Trade/Data/Static", "PoE/Trade/Service", "PoE/Trade/Component/TradeItem", "PoE/Trade/Component/TradeExchangeItem", "PoE/Trade/Component/Panel/SettingsPanel", "PoE/Trade/Component/Panel/AboutPanel", "PoE/Trade/Component/Panel/ItemSearchPanel", "PoE/Trade/Component/Panel/ItemFilterPanel", "PoE/Trade/Component/Panel/ExchangeFilterPanel", "PoE/Trade/Component/Panel/ItemSearchControlPanel", "PoE/Trade/Component/Panel/ItemResultsPanel"], (function(t) {
-			t("es6-promise");
-			var e = t("vue"),
-				n = t("vuex"),
-				i = t("vue-infinite-scroll"),
-				r = t("vue-multiselect"),
-				o = t("vue-toastr"),
-				s = t("vue-clipboard"),
-				a = t("plugins"),
-				u = (t("bootstrap-tooltip"),
-					t("Underscore")),
-				l = (t("moment"),
-					t("lscache")),
-				c = t("PoE/Helpers"),
-				h = t("PoE/Item/Markup/markup"),
-				f = new(t("favico"))({
-					animation: "none"
-				}),
-				d = t("PoE/Trade/Data/Static"),
-				p = t("PoE/Trade/Service"),
-				m = t("PoE/Trade/Component/TradeItem"),
-				g = t("PoE/Trade/Component/TradeExchangeItem"),
-				v = t("PoE/Trade/Component/Panel/SettingsPanel"),
-				y = t("PoE/Trade/Component/Panel/AboutPanel"),
-				b = t("PoE/Trade/Component/Panel/ItemSearchPanel"),
-				w = t("PoE/Trade/Component/Panel/ItemFilterPanel"),
-				x = t("PoE/Trade/Component/Panel/ExchangeFilterPanel"),
-				S = t("PoE/Trade/Component/Panel/ItemSearchControlPanel"),
-				_ = t("PoE/Trade/Component/Panel/ItemResultsPanel");
-			e.use(n);
-			var $ = {
-					state: {
-						searches: [],
-						search: {
-							pseudo: [],
-							active: null
-						},
-						exchange: {
-							highlight: null
-						},
-						blurred: !1,
-						advancedSearchHidden: !1
+		t("es6-promise");
+		var e = t("vue"),
+			n = t("vuex"),
+			i = t("vue-infinite-scroll"),
+			r = t("vue-multiselect"),
+			o = t("vue-toastr"),
+			s = t("vue-clipboard"),
+			a = t("plugins"),
+			u = (t("bootstrap-tooltip"),
+				t("Underscore")),
+			l = (t("moment"),
+				t("lscache")),
+			c = t("PoE/Helpers"),
+			h = t("PoE/Item/Markup/markup"),
+			f = new(t("favico"))({
+				animation: "none"
+			}),
+			d = t("PoE/Trade/Data/Static"),
+			p = t("PoE/Trade/Service"),
+			m = t("PoE/Trade/Component/TradeItem"),
+			g = t("PoE/Trade/Component/TradeExchangeItem"),
+			v = t("PoE/Trade/Component/Panel/SettingsPanel"),
+			y = t("PoE/Trade/Component/Panel/AboutPanel"),
+			b = t("PoE/Trade/Component/Panel/ItemSearchPanel"),
+			w = t("PoE/Trade/Component/Panel/ItemFilterPanel"),
+			x = t("PoE/Trade/Component/Panel/ExchangeFilterPanel"),
+			S = t("PoE/Trade/Component/Panel/ItemSearchControlPanel"),
+			_ = t("PoE/Trade/Component/Panel/ItemResultsPanel");
+		e.use(n);
+		var $ = {
+				state: {
+					searches: [],
+					search: {
+						pseudo: [],
+						active: null
 					},
-					mutations: {
-						setExchangeHighlight: function(t, e) {
-							t.exchange.highlight = e
-						},
-						updateBlurred: function(t, e) {
-							t.blurred = e
-						},
-						resetActiveUnreadHits: function(t) {
-							t.search.active && (t.search.active.unreadHits = 0)
-						},
-						incrementActiveUnreadHits: function(t) {
-							t.blurred && t.search.active && t.search.active.unreadHits++
-						},
-						addSearchQuery: function(t, e) {
-							var n = a.extend({}, {
-								localId: e.localId,
-								id: null,
-								type: null,
-								live: !1,
-								status: !1,
-								realm: e.realm,
-								league: e.league,
-								query: e.query,
-								sort: e.sort,
-								results: [],
-								total: null,
-								inexact: !1,
-								collapse: !1,
-								dirty: !1,
-								unreadHits: 0
-							}, e);
-							t.searches.unshift(n)
-						},
-						updateSearchQuery: function(t, n) {
-							var i = u.findWhere(t.searches, {
-								localId: n.localId
-							});
-							i && (n.realm && e.set(i, "realm", n.realm),
-								n.league && e.set(i, "league", n.league),
-								n.query && e.set(i, "query", n.query),
-								n.sort && e.set(i, "sort", n.sort),
-								"search" === i.type && void 0 !== n.live && e.set(i, "live", n.live))
-						},
-						addSearchResult: function(t, n) {
-							var i = u.findWhere(t.searches, {
-								localId: n.localId
-							});
-							if (i) {
-								e.set(i, "id", n.id),
-									e.set(i, "inexact", i.inexact || n.inexact);
-								var r = n.total;
-								if (0 == i.results.length && r > 0 && !i.live && (t.advancedSearchHidden = !0),
-									i.live)
-									for (r = i.total + n.result.length; r > d.liveResultTotalLimit;) {
-										r -= i.results.pop().result.length
-									}
-								e.set(i, "total", r),
-									i.results.unshift({
-										id: n.resultId,
-										result: n.result,
-										items: n.items || {},
-										total: i.live ? n.result.length : n.total
-									})
-							}
-						},
-						setItemForSearchResult: function(t, n) {
-							var i = u.findWhere(t.searches, {
-								localId: n.localId
-							});
-							if (i) {
-								var r = u.findWhere(i.results, {
-									id: n.id
-								});
-								r && e.set(r.items, n.itemId, n.itemData)
-							}
-						},
-						clearSearchResults: function(t, n) {
-							var i = u.findWhere(t.searches, {
-								localId: n.localId
-							});
-							i && (e.set(i, "results", []),
-								e.set(i, "total", null))
-						},
-						updatePseudoStats: function(t, e) {
-							t.search.pseudo = e
-						},
-						setSearchActive: function(t, e) {
-							e.localId ? (t.search.active = u.findWhere(t.searches, {
-									localId: e.localId
-								}),
-								t.search.active.live && (t.advancedSearchHidden = !0)) : t.search.active = null
-						},
-						setLiveSearchStatus: function(t, e) {
-							t.search.active && (t.search.active.status = e)
-						},
-						setSearchDirty: function(t) {
-							t.search.active && (t.search.active.dirty = !0)
-						},
-						removeCurrentSearch: function(t) {
-							var e = t.search.active;
-							if (e) {
-								t.search.active = null;
-								var n = u.indexOf(t.searches, e);
-								n >= 0 && t.searches.splice(n, 1)
-							}
-						},
-						toggleSearch: function(t) {
-							t.advancedSearchHidden = !t.advancedSearchHidden
-						},
-						showAdvancedSearch: function(t, e) {
-							t.advancedSearchHidden = !e
-						},
-						clearExchangeHighlight: function(t) {
-							t.exchange.highlight = null
+					exchange: {
+						highlight: null
+					},
+					blurred: !1,
+					advancedSearchHidden: !1
+				},
+				mutations: {
+					setExchangeHighlight: function(t, e) {
+						t.exchange.highlight = e
+					},
+					updateBlurred: function(t, e) {
+						t.blurred = e
+					},
+					resetActiveUnreadHits: function(t) {
+						t.search.active && (t.search.active.unreadHits = 0)
+					},
+					incrementActiveUnreadHits: function(t) {
+						t.blurred && t.search.active && t.search.active.unreadHits++
+					},
+					addSearchQuery: function(t, e) {
+						var n = a.extend({}, {
+							localId: e.localId,
+							id: null,
+							type: null,
+							live: !1,
+							status: !1,
+							realm: e.realm,
+							league: e.league,
+							query: e.query,
+							sort: e.sort,
+							results: [],
+							total: null,
+							inexact: !1,
+							collapse: !1,
+							dirty: !1,
+							unreadHits: 0
+						}, e);
+						t.searches.unshift(n)
+					},
+					updateSearchQuery: function(t, n) {
+						var i = u.findWhere(t.searches, {
+							localId: n.localId
+						});
+						i && (n.realm && e.set(i, "realm", n.realm),
+							n.league && e.set(i, "league", n.league),
+							n.query && e.set(i, "query", n.query),
+							n.sort && e.set(i, "sort", n.sort),
+							"search" === i.type && void 0 !== n.live && e.set(i, "live", n.live))
+					},
+					addSearchResult: function(t, n) {
+						var i = u.findWhere(t.searches, {
+							localId: n.localId
+						});
+						if (i) {
+							e.set(i, "id", n.id),
+								e.set(i, "inexact", i.inexact || n.inexact);
+							var r = n.total;
+							if (0 == i.results.length && r > 0 && !i.live && (t.advancedSearchHidden = !0),
+								i.live)
+								for (r = i.total + n.result.length; r > d.liveResultTotalLimit;) {
+									r -= i.results.pop().result.length
+								}
+							e.set(i, "total", r),
+								i.results.unshift({
+									id: n.resultId,
+									result: n.result,
+									items: n.items || {},
+									total: i.live ? n.result.length : n.total
+								})
 						}
+					},
+					setItemForSearchResult: function(t, n) {
+						var i = u.findWhere(t.searches, {
+							localId: n.localId
+						});
+						if (i) {
+							var r = u.findWhere(i.results, {
+								id: n.id
+							});
+							r && e.set(r.items, n.itemId, n.itemData)
+						}
+					},
+					clearSearchResults: function(t, n) {
+						var i = u.findWhere(t.searches, {
+							localId: n.localId
+						});
+						i && (e.set(i, "results", []),
+							e.set(i, "total", null))
+					},
+					updatePseudoStats: function(t, e) {
+						t.search.pseudo = e
+					},
+					setSearchActive: function(t, e) {
+						e.localId ? (t.search.active = u.findWhere(t.searches, {
+								localId: e.localId
+							}),
+							t.search.active.live && (t.advancedSearchHidden = !0)) : t.search.active = null
+					},
+					setLiveSearchStatus: function(t, e) {
+						t.search.active && (t.search.active.status = e)
+					},
+					setSearchDirty: function(t) {
+						t.search.active && (t.search.active.dirty = !0)
+					},
+					removeCurrentSearch: function(t) {
+						var e = t.search.active;
+						if (e) {
+							t.search.active = null;
+							var n = u.indexOf(t.searches, e);
+							n >= 0 && t.searches.splice(n, 1)
+						}
+					},
+					toggleSearch: function(t) {
+						t.advancedSearchHidden = !t.advancedSearchHidden
+					},
+					showAdvancedSearch: function(t, e) {
+						t.advancedSearchHidden = !e
+					},
+					clearExchangeHighlight: function(t) {
+						t.exchange.highlight = null
+					}
+				}
+			},
+			T = {
+				state: {
+					id: null,
+					tab: "search",
+					name: null,
+					type: null,
+					disc: null,
+					term: null,
+					realm: null,
+					league: null,
+					status: d.status[0].id,
+					filters: {},
+					stats: [{
+						type: "and",
+						filters: []
+					}],
+					exchange: {
+						want: {},
+						have: {},
+						fulfillable: !0
 					}
 				},
-				T = {
-					state: {
-						id: null,
-						tab: "search",
-						name: null,
-						type: null,
-						disc: null,
-						term: null,
-						realm: null,
-						league: null,
-						status: d.status[0].id,
-						filters: {},
-						stats: [{
-							type: "and",
-							filters: []
-						}],
-						exchange: {
+				mutations: {
+					setTab: function(t, e) {
+						t.tab = e
+					},
+					setRealm: function(t, e) {
+						t.realm = e
+					},
+					setLeague: function(t, e) {
+						t.league = e
+					},
+					setItem: function(t, e) {
+						t.name = e.name || null,
+							t.type = e.type || null,
+							t.disc = e.disc || null,
+							t.term = e.term || null
+					},
+					setStatus: function(t, e) {
+						t.status = e
+					},
+					setExchangeStock: function(t, n) {
+						n ? e.set(t.exchange, "stock", n) : e.delete(t.exchange, "stock")
+					},
+					setExchangeFulfillableTrade: function(t, n) {
+						e.set(t.exchange, "fulfillable", n)
+					},
+					setExchangeCollapse: function(t, n) {
+						n ? e.set(t.exchange, "collapse", n) : e.delete(t.exchange, "collapse")
+					},
+					setExchangeSellerAccount: function(t, n) {
+						n && n.length ? e.set(t.exchange, "account", n) : e.delete(t.exchange, "account")
+					},
+					removeExchangeItem: function(t, n) {
+						e.delete(t.exchange[n.type], n.id)
+					},
+					setExchangeItem: function(t, n) {
+						e.set(t.exchange[n.type], n.id, !0)
+					},
+					swapExchangeItems: function(t) {
+						var e = t.exchange.have;
+						t.exchange.have = t.exchange.want,
+							t.exchange.want = e
+					},
+					clearPropertyGroup: function(t, n) {
+						e.set(t.filters[n.group], "filters", {})
+					},
+					setPropertyFilter: function(t, n) {
+						t.filters[n.group] || e.set(t.filters, n.group, {
+								filters: {}
+							}),
+							u.isObject(t.filters[n.group].filters) && !u.isArray(t.filters[n.group].filters) || e.set(t.filters[n.group], "filters", {}),
+							u.isEmpty(n.value) ? e.delete(t.filters[n.group].filters, n.index) : e.set(t.filters[n.group].filters, n.index, n.value)
+					},
+					setFilterGroupDisabled: function(t, n) {
+						t[n.type][n.group] || e.set(t[n.type], n.group, {}),
+							e.set(t[n.type][n.group], "disabled", n.disable)
+					},
+					resetStatGroup: function(t, n) {
+						e.set(t.stats[n.group], "type", "and"),
+							e.set(t.stats[n.group], "filters", [])
+					},
+					setStatFilter: function(t, e) {
+						void 0 !== e.index ? t.stats[e.group].filters.splice(e.index, 1, e.value) : t.stats[e.group].filters.push(e.value)
+					},
+					removeStatFilter: function(t, e) {
+						t.stats[e.group].filters.splice(e.index, 1)
+					},
+					setStatGroupValue: function(t, n) {
+						u.isEmpty(n.value) ? e.delete(t.stats[n.group], "value") : e.set(t.stats[n.group], "value", n.value)
+					},
+					setStatGroupType: function(t, n) {
+						e.set(t.stats[n.group], "type", n.type),
+							e.delete(t.stats[n.group], "value")
+					},
+					removeStatGroup: function(t, e) {
+						t.stats.splice(e.group, 1)
+					},
+					pushStatGroup: function(t, e) {
+						t.stats.push({
+							filters: e.filters || [],
+							type: e.type
+						})
+					},
+					clearSearchForm: function(t, e) {
+						("exchange" === t.tab || e) && (t.exchange = {
 							want: {},
 							have: {},
 							fulfillable: !0
-						}
-					},
-					mutations: {
-						setTab: function(t, e) {
-							t.tab = e
-						},
-						setRealm: function(t, e) {
-							t.realm = e
-						},
-						setLeague: function(t, e) {
-							t.league = e
-						},
-						setItem: function(t, e) {
-							t.name = e.name || null,
-								t.type = e.type || null,
-								t.disc = e.disc || null,
-								t.term = e.term || null
-						},
-						setStatus: function(t, e) {
-							t.status = e
-						},
-						setExchangeStock: function(t, n) {
-							n ? e.set(t.exchange, "stock", n) : e.delete(t.exchange, "stock")
-						},
-						setExchangeFulfillableTrade: function(t, n) {
-							e.set(t.exchange, "fulfillable", n)
-						},
-						setExchangeCollapse: function(t, n) {
-							n ? e.set(t.exchange, "collapse", n) : e.delete(t.exchange, "collapse")
-						},
-						setExchangeSellerAccount: function(t, n) {
-							n && n.length ? e.set(t.exchange, "account", n) : e.delete(t.exchange, "account")
-						},
-						removeExchangeItem: function(t, n) {
-							e.delete(t.exchange[n.type], n.id)
-						},
-						setExchangeItem: function(t, n) {
-							e.set(t.exchange[n.type], n.id, !0)
-						},
-						swapExchangeItems: function(t) {
-							var e = t.exchange.have;
-							t.exchange.have = t.exchange.want,
-								t.exchange.want = e
-						},
-						clearPropertyGroup: function(t, n) {
-							e.set(t.filters[n.group], "filters", {})
-						},
-						setPropertyFilter: function(t, n) {
-							t.filters[n.group] || e.set(t.filters, n.group, {
-									filters: {}
-								}),
-								u.isObject(t.filters[n.group].filters) && !u.isArray(t.filters[n.group].filters) || e.set(t.filters[n.group], "filters", {}),
-								u.isEmpty(n.value) ? e.delete(t.filters[n.group].filters, n.index) : e.set(t.filters[n.group].filters, n.index, n.value)
-						},
-						setFilterGroupDisabled: function(t, n) {
-							t[n.type][n.group] || e.set(t[n.type], n.group, {}),
-								e.set(t[n.type][n.group], "disabled", n.disable)
-						},
-						resetStatGroup: function(t, n) {
-							e.set(t.stats[n.group], "type", "and"),
-								e.set(t.stats[n.group], "filters", [])
-						},
-						setStatFilter: function(t, e) {
-							void 0 !== e.index ? t.stats[e.group].filters.splice(e.index, 1, e.value) : t.stats[e.group].filters.push(e.value)
-						},
-						removeStatFilter: function(t, e) {
-							t.stats[e.group].filters.splice(e.index, 1)
-						},
-						setStatGroupValue: function(t, n) {
-							u.isEmpty(n.value) ? e.delete(t.stats[n.group], "value") : e.set(t.stats[n.group], "value", n.value)
-						},
-						setStatGroupType: function(t, n) {
-							e.set(t.stats[n.group], "type", n.type),
-								e.delete(t.stats[n.group], "value")
-						},
-						removeStatGroup: function(t, e) {
-							t.stats.splice(e.group, 1)
-						},
-						pushStatGroup: function(t, e) {
-							t.stats.push({
-								filters: e.filters || [],
-								type: e.type
-							})
-						},
-						clearSearchForm: function(t, e) {
-							("exchange" === t.tab || e) && (t.exchange = {
-								want: {},
-								have: {},
-								fulfillable: !0
-							}),
-							("search" === t.tab || e) && (t.name = null,
-								t.type = null,
-								t.disc = null,
-								t.term = null,
-								t.filters = {},
-								t.stats = [{
-									type: "and",
-									filters: []
-								}])
-						}
+						}),
+						("search" === t.tab || e) && (t.name = null,
+							t.type = null,
+							t.disc = null,
+							t.term = null,
+							t.filters = {},
+							t.stats = [{
+								type: "and",
+								filters: []
+							}])
 					}
-				},
-				P = new n.Store({
-					strict: !0,
-					modules: {
-						persistent: T,
-						transient: $
+				}
+			},
+			P = new n.Store({
+				strict: !0,
+				modules: {
+					persistent: T,
+					transient: $
+				}
+			});
+		return function(t) {
+			d.realm = t.realm || null,
+				d.realms = t.realms || [],
+				d.leagues = t.leagues || [],
+				d.news = t.news || [],
+				d.basePath = t.basePath || d.basePath,
+				l.setBucket(d.basePath.substring(1)),
+				l.setExpiryMilliseconds(1e3),
+				l.supported() && (localStorage.removeItem("items"),
+					localStorage.removeItem("stats"),
+					localStorage.removeItem("data"),
+					localStorage.removeItem("settings"),
+					localStorage.removeItem("woop"),
+					l.flushExpired(),
+					d.knownItems = l.get("items") || {},
+					d.knownStats = l.get("stats") || {},
+					d.exchangeData = l.get("data") || {},
+					d.propertyFilters = l.get("filters") || {});
+			var n = function(t) {
+				return "/api".concat(d.basePath, "/").concat(t.replace(/^\//, ""))
+			};
+			return e.mixin({
+					methods: {
+						apiUrl: n
 					}
-				});
-			return function(t) {
-				d.realm = t.realm || null,
-					d.realms = t.realms || [],
-					d.leagues = t.leagues || [],
-					d.news = t.news || [],
-					d.basePath = t.basePath || d.basePath,
-					l.setBucket(d.basePath.substring(1)),
-					l.setExpiryMilliseconds(1e3),
-					l.supported() && (localStorage.removeItem("items"),
-						localStorage.removeItem("stats"),
-						localStorage.removeItem("data"),
-						localStorage.removeItem("settings"),
-						localStorage.removeItem("woop"),
-						l.flushExpired(),
-						d.knownItems = l.get("items") || {},
-						d.knownStats = l.get("stats") || {},
-						d.exchangeData = l.get("data") || {},
-						d.propertyFilters = l.get("filters") || {});
-				var n = function(t) {
-					return "/api".concat(d.basePath, "/").concat(t.replace(/^\//, ""))
-				};
-				return e.mixin({
-						methods: {
-							apiUrl: n
-						}
-					}),
-					a.when(
-						u.isEmpty(d.knownItems) ? fetch("items.json").then(res => res.json()) : null,
-						u.isEmpty(d.knownStats) ? fetch("stats.json").then(res => res.json()) : null,
-						u.isEmpty(d.exchangeData) ? fetch("static.json").then(res => res.json()) : null,
-						u.isEmpty(d.propertyFilters) ? fetch("filters.json").then(res => res.json()) : null
-					).then((function($, T, E, O) {
-						if ($) {
-							console.log("Raw Known Items Data ($):", $); // $[0] 전체 데이터 확인
-							if ($.result) {
-								console.log("Known Items Data:", $.result); // 정상적으로 result가 있는 경우
-								d.knownItems = $.result;
-							} else {
-								console.warn("Known Items data ($) does not contain 'result'.");
-							}
+				}),
+				a.when(
+					u.isEmpty(d.knownItems) ? fetch("items.json").then(res => res.json()) : null,
+					u.isEmpty(d.knownStats) ? fetch("stats.json").then(res => res.json()) : null,
+					u.isEmpty(d.exchangeData) ? fetch("static.json").then(res => res.json()) : null,
+					u.isEmpty(d.propertyFilters) ? fetch("filters.json").then(res => res.json()) : null
+				).then((function($, T, E, O) {
+					if ($) {
+						console.log("Raw Known Items Data ($):", $); // $[0] 전체 데이터 확인
+						if ($.result) {
+							console.log("Known Items Data:", $.result); // 정상적으로 result가 있는 경우
+							d.knownItems = $.result;
 						} else {
-							console.warn("Known Items data ($) is undefined or empty.");
+							console.warn("Known Items data ($) does not contain 'result'.");
 						}
+					} else {
+						console.warn("Known Items data ($) is undefined or empty.");
+					}
 
-						if (T) {
-							console.log("Raw Known Stats Data (T):", T); // T[0] 전체 데이터 확인
-							if (T.result) {
-								console.log("Known Stats Data:", T.result);
-								d.knownStats = T.result;
-							} else {
-								console.warn("Known Stats data (T) does not contain 'result'.");
-							}
+					if (T) {
+						console.log("Raw Known Stats Data (T):", T); // T[0] 전체 데이터 확인
+						if (T.result) {
+							console.log("Known Stats Data:", T.result);
+							d.knownStats = T.result;
 						} else {
-							console.warn("Known Stats data (T) is undefined or empty.");
+							console.warn("Known Stats data (T) does not contain 'result'.");
 						}
+					} else {
+						console.warn("Known Stats data (T) is undefined or empty.");
+					}
 
-						if (E) {
-							console.log("Raw Exchange Data (E):", E); // E[0] 전체 데이터 확인
-							if (E.result) {
-								console.log("Exchange Data:", E.result);
-								d.exchangeData = E.result;
-							} else {
-								console.warn("Exchange data (E) does not contain 'result'.");
-							}
+					if (E) {
+						console.log("Raw Exchange Data (E):", E); // E[0] 전체 데이터 확인
+						if (E.result) {
+							console.log("Exchange Data:", E.result);
+							d.exchangeData = E.result;
 						} else {
-							console.warn("Exchange Data (E) is undefined or empty.");
+							console.warn("Exchange data (E) does not contain 'result'.");
 						}
+					} else {
+						console.warn("Exchange Data (E) is undefined or empty.");
+					}
 
-						if (O) {
-							console.log("Raw Property Filters Data (O):", O); // O[0] 전체 데이터 확인
-							if (O.result) {
-								console.log("Property Filters Data:", O.result);
-								d.propertyFilters = O.result;
-							} else {
-								console.warn("Property Filters data (O) does not contain 'result'.");
-							}
+					if (O) {
+						console.log("Raw Property Filters Data (O):", O); // O[0] 전체 데이터 확인
+						if (O.result) {
+							console.log("Property Filters Data:", O.result);
+							d.propertyFilters = O.result;
 						} else {
-							console.warn("Property Filters data (O) is undefined or empty.");
+							console.warn("Property Filters data (O) does not contain 'result'.");
 						}
-					}));
+					} else {
+						console.warn("Property Filters data (O) is undefined or empty.");
+					}
 
 
-				u.each(d.knownStats, (function(t) {
-						d.knownStatsFlat = u.extend(d.knownStatsFlat, u.indexBy(t.entries, "id")),
-							"crucible" === t.id && (d.knownCrucibleStats = [t],
-								d.knownCrucibleStatsFlat = u.indexBy(t.entries, "id"))
-					})),
-					u.each(d.exchangeData, (function(t) {
-						d.exchangeDataFlat = u.extend(d.exchangeDataFlat, u.indexBy(t.entries, "id"))
-					})),
-					e.use(s),
-					e.use(i.install),
-					e.component("Multiselect", r.default),
-					e.component("vue-toastr", o),
-					e.mixin({
-						methods: {
-							translate: c.translate,
-							distUrl: c.distUrl,
-							imageUrl: c.imageUrl,
-							parseMarkup: h.parseMarkup,
-							underline: function(t, e) {
-								if (t && t.length) {
-									t = u.escape(t),
-										e = u.escape(e.trim());
-									var n = t.toLowerCase().indexOf(e.toLowerCase());
-									return n < 0 || 0 == e.length ? t : t.substring(0, n) + "<strong>" + t.substring(n, n + e.length) + "</strong>" + t.substring(n + e.length)
-								}
-								return e
-							}
-						}
-					}),
-					e.component("trade-item", m),
-					e.component("trade-exchange-item", g),
-					e.component("settings-panel", v(d)),
-					e.component("about-panel", y(d)),
-					e.component("item-search-panel", b(d)),
-					e.component("item-filter-panel", w(d)),
-					e.component("exchange-filter-panel", x(d)),
-					e.component("item-search-control-panel", S(d)),
-					e.component("item-results-panel", _(d)),
-					window.app = new e({
-						el: "#trade",
-						store: P,
-						data: {
-							static_: d,
-							debug: !1,
-							loaded: !1,
-							exchange: {
-								enabled: !1
-							},
-							ui: {
-								read: null,
-								title: null,
-								unreadCount: 0
-							},
-							audio: {
-								name: null,
-								file: d.notifications[0].file,
-								volume: 50,
-								custom: !1,
-								playOnLoad: !1
-							},
-							settings: {
-								hiddenGroups: {},
-								layout: null,
-								lastDismissedNews: 0,
-								lastSeenAbout: 0,
-								searchBarLayout: null,
-								socketVariant: 1
-							}
-						},
-						computed: {
-							service: function() {
-								return p.call(this, {
-									apiUrl: n
-								})
-							},
-							transient: function() {
-								return this.$store.state.transient
-							},
-							persistent: function() {
-								return u.pick(this.state, ["realm", "league", "status"])
-							},
-							state: function() {
-								return this.$store.state.persistent
-							},
-							aboutAlert: function() {
-								return null !== d.alertId && this.settings.lastSeenAbout < d.alertId
-							},
-							searchId: function() {
-								var t = this.transient.search.active;
-								return t && t.id ? t.id : null
-							},
-							searchLive: function() {
-								var t = this.transient.search.active;
-								return t && t.live
-							},
-							stateUrl: function() {
-								return "search" !== this.state.tab && "exchange" !== this.state.tab ? d.basePath + "/" + this.state.tab : this.searchId ? d.basePath + "/" + this.state.tab + ("pc" !== this.state.realm ? "/" + this.state.realm : "") + "/" + this.state.league + "/" + this.searchId + (this.searchLive ? "/live" : "") : d.basePath + "/" + this.state.tab + ("pc" !== this.state.realm ? "/" + this.state.realm : "") + "/" + this.state.league
-							},
-							query: function() {
-								var t = {};
-								if (this.state.status && (t.status = {
-										option: this.state.status
-									}),
-									"exchange" == this.state.tab)
-									t.have = u.keys(this.state.exchange.have),
-									t.want = u.keys(this.state.exchange.want),
-									null !== this.state.exchange.stock && (t.stock = this.state.exchange.stock),
-									this.state.exchange.fulfillable || (t.fulfillable = this.state.exchange.fulfillable),
-									null !== this.state.exchange.collapse && (t.collapse = this.state.exchange.collapse),
-									null !== this.state.exchange.account && (t.account = this.state.exchange.account);
-								else {
-									u.isEmpty(this.state.term) ? (u.isEmpty(this.state.name) || (t.name = this.state.name,
-												u.isEmpty(this.state.disc) || (t.name = {
-													option: t.name,
-													discriminator: this.state.disc
-												})),
-											u.isEmpty(this.state.type) || (t.type = this.state.type,
-												u.isEmpty(this.state.disc) || (t.type = {
-													option: t.type,
-													discriminator: this.state.disc
-												}))) : t.term = this.state.term,
-										u.isEmpty(this.state.stats) || (t.stats = this.state.stats);
-									var e = {};
-									for (var n in this.state.filters) {
-										var i = this.state.filters[n];
-										u.isEmpty(i.filters) || (e[n] = i)
+					u.each(d.knownStats, (function(t) {
+							d.knownStatsFlat = u.extend(d.knownStatsFlat, u.indexBy(t.entries, "id")),
+								"crucible" === t.id && (d.knownCrucibleStats = [t],
+									d.knownCrucibleStatsFlat = u.indexBy(t.entries, "id"))
+						})),
+						u.each(d.exchangeData, (function(t) {
+							d.exchangeDataFlat = u.extend(d.exchangeDataFlat, u.indexBy(t.entries, "id"))
+						})),
+						e.use(s),
+						e.use(i.install),
+						e.component("Multiselect", r.default),
+						e.component("vue-toastr", o),
+						e.mixin({
+							methods: {
+								translate: c.translate,
+								distUrl: c.distUrl,
+								imageUrl: c.imageUrl,
+								parseMarkup: h.parseMarkup,
+								underline: function(t, e) {
+									if (t && t.length) {
+										t = u.escape(t),
+											e = u.escape(e.trim());
+										var n = t.toLowerCase().indexOf(e.toLowerCase());
+										return n < 0 || 0 == e.length ? t : t.substring(0, n) + "<strong>" + t.substring(n, n + e.length) + "</strong>" + t.substring(n + e.length)
 									}
-									u.isEmpty(e) || (t.filters = e)
+									return e
 								}
-								return {
-									query: t
-								}
-							},
-							pseudo: function() {
-								var t = function(t) {
-										if (d.knownStatsFlat) {
-											var e = d.knownStatsFlat[t];
-											return !!e && "pseudo" === (e.type || null)
-										}
-										return !1
-									},
-									e = [];
-								for (var n in this.state.stats) {
-									var i = this.state.stats[n];
-									i.disabled || u.each(i.filters, (function(n) {
-										t(n.id) && e.push(n.id)
-									}))
-								}
-								return e
 							}
-						},
-						watch: {
-							searchId: function() {
-								this.updateUrl()
-							},
-							searchLive: function() {
-								this.updateUrl()
-							},
-							pseudo: function() {
-								this.$store.commit("updatePseudoStats", this.pseudo)
-							},
-							audio: {
-								handler: function() {
-									l.set("woop", this.audio)
+						}),
+						e.component("trade-item", m),
+						e.component("trade-exchange-item", g),
+						e.component("settings-panel", v(d)),
+						e.component("about-panel", y(d)),
+						e.component("item-search-panel", b(d)),
+						e.component("item-filter-panel", w(d)),
+						e.component("exchange-filter-panel", x(d)),
+						e.component("item-search-control-panel", S(d)),
+						e.component("item-results-panel", _(d)),
+						window.app = new e({
+							el: "#trade",
+							store: P,
+							data: {
+								static_: d,
+								debug: !1,
+								loaded: !1,
+								exchange: {
+									enabled: !1
 								},
-								deep: !0
-							},
-							settings: {
-								handler: function() {
-									l.set("settings", this.settings)
+								ui: {
+									read: null,
+									title: null,
+									unreadCount: 0
 								},
-								deep: !0
-							}
-						},
-						mounted: function() {
-							var n = this;
-							if (this.$refs.toastr) {
-								this.$refs.toastr.defaultPosition = "toast-bottom-center";
-							} else {
-								console.error("Toastr ref is undefined");
-							}
-							this.ui.title = document.title,
-								window.onpopstate = function(t) {
-									n.load(t.state)
+								audio: {
+									name: null,
+									file: d.notifications[0].file,
+									volume: 50,
+									custom: !1,
+									playOnLoad: !1
 								},
-								a((function() {
-									function t() {
-										if ("search" === n.state.tab || "exchange" === n.state.tab) {
-											var t = n.transient.search.active;
-											t && null === t.id || u.debounce((function() {
-												e.nextTick(n.doSearch)
-											}), 200)()
-										}
-									}
-									a(window).scroll(n.checkScroll),
-										a(document).on("click", ".top-btn", (function() {
-											return a("html, body").animate({
-													scrollTop: 0
-												}, 300),
-												!1
-										})),
-										a(document).on("keydown", "body", (function(e) {
-											13 === e.keyCode && a(e.target).is("body") && t()
-										})),
-										a(document).on("keydown", ".search-advanced input.form-control", (function(e) {
-											13 === e.keyCode && t()
-										}));
-									var i = l.get("woop");
-									u.isEmpty(i) || (n.audio.file = i.file,
-											n.audio.volume = i.volume,
-											n.audio.custom = i.custom,
-											i.custom && (n.audio.name = i.name)),
-										a(n.$refs.audio).on("canplay", (function() {
-											n.audio.playOnLoad && n.doWoop()
-										}));
-									var r = l.get("settings");
-									u.isEmpty(r) || (n.settings.hiddenGroups = r.hiddenGroups || {},
-											n.settings.layout = r.layout || {},
-											n.settings.lastDismissedNews = r.lastDismissedNews || null,
-											n.settings.lastSeenAbout = r.lastSeenAbout || null,
-											n.settings.searchBarLayout = r.searchBarLayout || null,
-											n.settings.socketVariant = r.socketVariant || 1),
-										a(window).on("focus", n.focus),
-										a(window).on("blur", n.blur),
-										a("#trade .loader").hide(),
-										a("#trade .top").fadeIn()
-								}));
-							var i = null;
-							if (t.state)
-								i = t.state;
-							else {
-								i = l.get("state");
-								try {
-									i && (i = u.pick(i, ["realm", "league", "status"]))
-								} catch (t) {
-									i = null
+								settings: {
+									hiddenGroups: {},
+									layout: null,
+									lastDismissedNews: 0,
+									lastSeenAbout: 0,
+									searchBarLayout: null,
+									socketVariant: 1
 								}
-								l.set("state", i || {})
-							}
-							try {
-								null !== i && this.$store.replaceState({
-									persistent: a.extend(!0, {}, this.state, i),
-									transient: this.transient
-								})
-							} catch (t) {
-								console.error(t)
-							}
-							n.setCurrentTab(t.tab, !0),
-								t.league && n.setCurrentLeague(t.league),
-								n.setCurrentRealm(t.realm),
-								t.state ? n.doSearch(!0, t.live || null) : t.stateFailed ? (n.$root.$refs.toastr.Add({
-										msg: n.translate("Failed to load search state. The search is no longer valid."),
-										type: "error",
-										progressbar: !1,
-										timeout: 0
-									}),
-									n.updateUrl()) : n.updateUrl(),
-								this.loaded = !0,
-								e.nextTick((function() {
-									n.$emit("ready")
-								}))
-						},
-						methods: {
-							save: function(t) {
-								this.loaded && (t && this.$store.commit("setSearchDirty"),
-									window.history.pushState(this.state, "", this.stateUrl),
-									l.set("state", this.persistent))
 							},
-							load: function(t) {
-								null != t && (this.$store.commit("removeCurrentSearch"),
-									this.$store.replaceState({
-										persistent: t,
-										transient: this.transient
-									}),
-									l.set("state", this.persistent))
-							},
-							clearCachedData: function() {
-								l.remove("items"),
-									l.remove("stats"),
-									l.remove("data")
-							},
-							updateUrl: function() {
-								window.history.replaceState(this.state, "", this.stateUrl)
-							},
-							setCurrentTab: function(t, e) {
-								e || (this.resetSearch(),
-										this.$store.commit("showAdvancedSearch", !0)),
-									this.$store.commit("setTab", t),
-									this.save(!0)
-							},
-							setCurrentRealm: function(t) {
-								if (this.$store.commit("setRealm", t),
-									null === this.state.league) {
-									var e = u.findWhere(d.leagues, {
-										realm: t
-									});
-									e && this.$store.commit("setLeague", e.id)
-								} else
-									void 0 === u.findWhere(d.leagues, {
-										id: this.state.league,
-										realm: t
-									}) && this.$store.commit("setLeague", null);
-								this.save(),
-									this.resetSearch()
-							},
-							setCurrentLeague: function(t, e) {
-								this.$store.commit("setLeague", t),
-									e && this.$store.commit("setTab", "search"),
-									this.save(),
-									this.resetSearch()
-							},
-							setCurrentStatus: function(t) {
-								this.$store.commit("setStatus", t),
-									this.save(!0)
-							},
-							setCurrentItem: function(t) {
-								this.$store.commit("setItem", {
-										name: t && t.name || null,
-										type: t && t.type || null,
-										disc: t && t.disc || null,
-										term: t && t.term || null
-									}),
-									this.save(!0)
-							},
-							setCurrentSearch: function(t) {
-								this.$store.commit("setSearchActive", {
-									localId: t
-								})
-							},
-							addSearch: function(t) {
-								var e = null;
-								t ? (e = u.uniqueId("live_"),
-										this.$store.commit("addSearchQuery", {
-											localId: e,
-											type: this.state.tab,
-											realm: this.state.realm,
-											league: this.state.league,
-											id: t,
-											live: !0
-										}),
-										window.Notification && "default" === Notification.permission && Notification.requestPermission()) : (e = u.uniqueId("search_"),
-										this.$store.commit("addSearchQuery", {
-											localId: e,
-											type: this.state.tab,
-											realm: this.state.realm,
-											league: this.state.league,
-											query: this.query.query,
-											sort: "search" === this.state.tab ? {
-												price: "asc"
-											} : {
-												have: "asc"
-											},
-											collapse: this.state.exchange.collapse || null
-										})),
-									this.setCurrentSearch(e)
-							},
-							toggleLive: function() {
-								this.transient.search.active && this.transient.search.active.id && (this.transient.search.active.live ? this.$store.commit("updateSearchQuery", {
-									localId: this.transient.search.active.localId,
-									live: !1
-								}) : this.addSearch(this.transient.search.active.id))
-							},
-							resetSearch: function() {
-								this.$store.commit("removeCurrentSearch")
-							},
-							clearState: function(t) {
-								this.resetSearch(),
-									this.$store.commit("clearSearchForm", !!t),
-									this.$store.commit("clearExchangeHighlight"),
-									this.save(!0),
-									t || this.$root.$refs.toastr.Add({
-										msg: this.translate("Search form cleared!"),
-										progressbar: !1
+							computed: {
+								service: function() {
+									return p.call(this, {
+										apiUrl: n
 									})
-							},
-							setItem: function(t) {
-								this.setCurrentItem(t)
-							},
-							doSearch: function(t, e) {
-								this.resetSearch(),
-									t && this.$store.commit("showAdvancedSearch", !1),
-									this.addSearch(e)
-							},
-							focus: function() {
-								document.title = this.ui.title,
-									this.ui.read = !0,
-									this.ui.unreadCount = 0,
-									this.$store.commit("updateBlurred", !1),
-									this.$store.commit("resetActiveUnreadHits"),
-									f.reset()
-							},
-							blur: function() {
-								this.ui.read = null,
-									this.ui.unreadCount = 0,
-									this.$store.commit("updateBlurred", !0)
-							},
-							notify: function(t) {
-								if (this.doWoop(),
-									1 != this.ui.read) {
-									if (this.ui.unreadCount += t,
-										this.ui.unreadCount > d.liveResultTotalLimit && (this.ui.unreadCount = d.liveResultTotalLimit),
-										document.title = "(" + this.ui.unreadCount + ") " + this.ui.title,
-										this.ui.read,
-										this.ui.read = !1,
-										window.Notification && "granted" === Notification.permission) {
-										var e = new Notification(this.translate("New live search results!"), {
-											body: 1 == this.ui.unreadCount ? this.translate("1 new item has matched your search.") : this.translate("{i} new items have matched your search.", {
-												"{i}": this.ui.unreadCount
-											})
-										});
-										e.onclick = function() {
-											e.close(),
-												window.focus()
+								},
+								transient: function() {
+									return this.$store.state.transient
+								},
+								persistent: function() {
+									return u.pick(this.state, ["realm", "league", "status"])
+								},
+								state: function() {
+									return this.$store.state.persistent
+								},
+								aboutAlert: function() {
+									return null !== d.alertId && this.settings.lastSeenAbout < d.alertId
+								},
+								searchId: function() {
+									var t = this.transient.search.active;
+									return t && t.id ? t.id : null
+								},
+								searchLive: function() {
+									var t = this.transient.search.active;
+									return t && t.live
+								},
+								stateUrl: function() {
+									return "search" !== this.state.tab && "exchange" !== this.state.tab ? d.basePath + "/" + this.state.tab : this.searchId ? d.basePath + "/" + this.state.tab + ("pc" !== this.state.realm ? "/" + this.state.realm : "") + "/" + this.state.league + "/" + this.searchId + (this.searchLive ? "/live" : "") : d.basePath + "/" + this.state.tab + ("pc" !== this.state.realm ? "/" + this.state.realm : "") + "/" + this.state.league
+								},
+								query: function() {
+									var t = {};
+									if (this.state.status && (t.status = {
+											option: this.state.status
+										}),
+										"exchange" == this.state.tab)
+										t.have = u.keys(this.state.exchange.have),
+										t.want = u.keys(this.state.exchange.want),
+										null !== this.state.exchange.stock && (t.stock = this.state.exchange.stock),
+										this.state.exchange.fulfillable || (t.fulfillable = this.state.exchange.fulfillable),
+										null !== this.state.exchange.collapse && (t.collapse = this.state.exchange.collapse),
+										null !== this.state.exchange.account && (t.account = this.state.exchange.account);
+									else {
+										u.isEmpty(this.state.term) ? (u.isEmpty(this.state.name) || (t.name = this.state.name,
+													u.isEmpty(this.state.disc) || (t.name = {
+														option: t.name,
+														discriminator: this.state.disc
+													})),
+												u.isEmpty(this.state.type) || (t.type = this.state.type,
+													u.isEmpty(this.state.disc) || (t.type = {
+														option: t.type,
+														discriminator: this.state.disc
+													}))) : t.term = this.state.term,
+											u.isEmpty(this.state.stats) || (t.stats = this.state.stats);
+										var e = {};
+										for (var n in this.state.filters) {
+											var i = this.state.filters[n];
+											u.isEmpty(i.filters) || (e[n] = i)
 										}
+										u.isEmpty(e) || (t.filters = e)
 									}
-									f.badge(this.ui.unreadCount)
+									return {
+										query: t
+									}
+								},
+								pseudo: function() {
+									var t = function(t) {
+											if (d.knownStatsFlat) {
+												var e = d.knownStatsFlat[t];
+												return !!e && "pseudo" === (e.type || null)
+											}
+											return !1
+										},
+										e = [];
+									for (var n in this.state.stats) {
+										var i = this.state.stats[n];
+										i.disabled || u.each(i.filters, (function(n) {
+											t(n.id) && e.push(n.id)
+										}))
+									}
+									return e
 								}
 							},
-							doWoop: function(t) {
-								this.audio.volume && (this.audio.playOnLoad = !1,
-									this.$refs.audio.currentTime > 0 && (this.$refs.audio.pause(),
-										this.$refs.audio.currentTime = 0),
-									this.$refs.audio.volume = this.audio.volume / 100,
-									t ? (this.audio.playOnLoad = !0,
-										this.$refs.audio.load()) : this.$refs.audio.play())
+							watch: {
+								searchId: function() {
+									this.updateUrl()
+								},
+								searchLive: function() {
+									this.updateUrl()
+								},
+								pseudo: function() {
+									this.$store.commit("updatePseudoStats", this.pseudo)
+								},
+								audio: {
+									handler: function() {
+										l.set("woop", this.audio)
+									},
+									deep: !0
+								},
+								settings: {
+									handler: function() {
+										l.set("settings", this.settings)
+									},
+									deep: !0
+								}
 							},
-							checkScroll: function() {
-								if (a(window).scrollTop() < 88)
-									a(this.$refs.top).hide();
+							mounted: function() {
+								var n = this;
+								if (this.$refs.toastr) {
+									this.$refs.toastr.defaultPosition = "toast-bottom-center";
+								} else {
+									console.error("Toastr ref is undefined");
+								}
+								this.ui.title = document.title,
+									window.onpopstate = function(t) {
+										n.load(t.state)
+									},
+									a((function() {
+										function t() {
+											if ("search" === n.state.tab || "exchange" === n.state.tab) {
+												var t = n.transient.search.active;
+												t && null === t.id || u.debounce((function() {
+													e.nextTick(n.doSearch)
+												}), 200)()
+											}
+										}
+										a(window).scroll(n.checkScroll),
+											a(document).on("click", ".top-btn", (function() {
+												return a("html, body").animate({
+														scrollTop: 0
+													}, 300),
+													!1
+											})),
+											a(document).on("keydown", "body", (function(e) {
+												13 === e.keyCode && a(e.target).is("body") && t()
+											})),
+											a(document).on("keydown", ".search-advanced input.form-control", (function(e) {
+												13 === e.keyCode && t()
+											}));
+										var i = l.get("woop");
+										u.isEmpty(i) || (n.audio.file = i.file,
+												n.audio.volume = i.volume,
+												n.audio.custom = i.custom,
+												i.custom && (n.audio.name = i.name)),
+											a(n.$refs.audio).on("canplay", (function() {
+												n.audio.playOnLoad && n.doWoop()
+											}));
+										var r = l.get("settings");
+										u.isEmpty(r) || (n.settings.hiddenGroups = r.hiddenGroups || {},
+												n.settings.layout = r.layout || {},
+												n.settings.lastDismissedNews = r.lastDismissedNews || null,
+												n.settings.lastSeenAbout = r.lastSeenAbout || null,
+												n.settings.searchBarLayout = r.searchBarLayout || null,
+												n.settings.socketVariant = r.socketVariant || 1),
+											a(window).on("focus", n.focus),
+											a(window).on("blur", n.blur),
+											a("#trade .loader").hide(),
+											a("#trade .top").fadeIn()
+									}));
+								var i = null;
+								if (t.state)
+									i = t.state;
 								else {
-									var t = a(window).scrollTop() + a(window).height();
-									t > (a("#trade .results").length ? a("#trade .results").offset().top + 88 : t) ? a(this.$refs.top).fadeIn(300) : a(this.$refs.top).fadeOut(300)
+									i = l.get("state");
+									try {
+										i && (i = u.pick(i, ["realm", "league", "status"]))
+									} catch (t) {
+										i = null
+									}
+									l.set("state", i || {})
 								}
+								try {
+									null !== i && this.$store.replaceState({
+										persistent: a.extend(!0, {}, this.state, i),
+										transient: this.transient
+									})
+								} catch (t) {
+									console.error(t)
+								}
+								n.setCurrentTab(t.tab, !0),
+									t.league && n.setCurrentLeague(t.league),
+									n.setCurrentRealm(t.realm),
+									t.state ? n.doSearch(!0, t.live || null) : t.stateFailed ? (n.$root.$refs.toastr.Add({
+											msg: n.translate("Failed to load search state. The search is no longer valid."),
+											type: "error",
+											progressbar: !1,
+											timeout: 0
+										}),
+										n.updateUrl()) : n.updateUrl(),
+									this.loaded = !0,
+									e.nextTick((function() {
+										n.$emit("ready")
+									}))
 							},
-							setPropertyFilterGroupDisabled: function(t) {
-								this.$store.commit("setFilterGroupDisabled", {
-										type: "filters",
-										group: t.group,
-										disable: t.disable
-									}),
-									this.$set(this.settings.hiddenGroups, t.group, t.disable)
-							},
-							setResultLayout: function(t) {
-								this.settings.layout = t
-							},
-							setLastDismissedNews: function(t) {
-								this.settings.lastDismissedNews = t
-							},
-							setLastSeenAbout: function(t) {
-								this.settings.lastSeenAbout = t
-							},
-							setSearchBarLayout: function(t) {
-								this.settings.searchBarLayout = t
-							},
-							setSocketVariant: function(t) {
-								this.settings.socketVariant = t
+							methods: {
+								save: function(t) {
+									this.loaded && (t && this.$store.commit("setSearchDirty"),
+										window.history.pushState(this.state, "", this.stateUrl),
+										l.set("state", this.persistent))
+								},
+								load: function(t) {
+									null != t && (this.$store.commit("removeCurrentSearch"),
+										this.$store.replaceState({
+											persistent: t,
+											transient: this.transient
+										}),
+										l.set("state", this.persistent))
+								},
+								clearCachedData: function() {
+									l.remove("items"),
+										l.remove("stats"),
+										l.remove("data")
+								},
+								updateUrl: function() {
+									window.history.replaceState(this.state, "", this.stateUrl)
+								},
+								setCurrentTab: function(t, e) {
+									e || (this.resetSearch(),
+											this.$store.commit("showAdvancedSearch", !0)),
+										this.$store.commit("setTab", t),
+										this.save(!0)
+								},
+								setCurrentRealm: function(t) {
+									if (this.$store.commit("setRealm", t),
+										null === this.state.league) {
+										var e = u.findWhere(d.leagues, {
+											realm: t
+										});
+										e && this.$store.commit("setLeague", e.id)
+									} else
+										void 0 === u.findWhere(d.leagues, {
+											id: this.state.league,
+											realm: t
+										}) && this.$store.commit("setLeague", null);
+									this.save(),
+										this.resetSearch()
+								},
+								setCurrentLeague: function(t, e) {
+									this.$store.commit("setLeague", t),
+										e && this.$store.commit("setTab", "search"),
+										this.save(),
+										this.resetSearch()
+								},
+								setCurrentStatus: function(t) {
+									this.$store.commit("setStatus", t),
+										this.save(!0)
+								},
+								setCurrentItem: function(t) {
+									this.$store.commit("setItem", {
+											name: t && t.name || null,
+											type: t && t.type || null,
+											disc: t && t.disc || null,
+											term: t && t.term || null
+										}),
+										this.save(!0)
+								},
+								setCurrentSearch: function(t) {
+									this.$store.commit("setSearchActive", {
+										localId: t
+									})
+								},
+								addSearch: function(t) {
+									var e = null;
+									t ? (e = u.uniqueId("live_"),
+											this.$store.commit("addSearchQuery", {
+												localId: e,
+												type: this.state.tab,
+												realm: this.state.realm,
+												league: this.state.league,
+												id: t,
+												live: !0
+											}),
+											window.Notification && "default" === Notification.permission && Notification.requestPermission()) : (e = u.uniqueId("search_"),
+											this.$store.commit("addSearchQuery", {
+												localId: e,
+												type: this.state.tab,
+												realm: this.state.realm,
+												league: this.state.league,
+												query: this.query.query,
+												sort: "search" === this.state.tab ? {
+													price: "asc"
+												} : {
+													have: "asc"
+												},
+												collapse: this.state.exchange.collapse || null
+											})),
+										this.setCurrentSearch(e)
+								},
+								toggleLive: function() {
+									this.transient.search.active && this.transient.search.active.id && (this.transient.search.active.live ? this.$store.commit("updateSearchQuery", {
+										localId: this.transient.search.active.localId,
+										live: !1
+									}) : this.addSearch(this.transient.search.active.id))
+								},
+								resetSearch: function() {
+									this.$store.commit("removeCurrentSearch")
+								},
+								clearState: function(t) {
+									this.resetSearch(),
+										this.$store.commit("clearSearchForm", !!t),
+										this.$store.commit("clearExchangeHighlight"),
+										this.save(!0),
+										t || this.$root.$refs.toastr.Add({
+											msg: this.translate("Search form cleared!"),
+											progressbar: !1
+										})
+								},
+								setItem: function(t) {
+									this.setCurrentItem(t)
+								},
+								doSearch: function(t, e) {
+									this.resetSearch(),
+										t && this.$store.commit("showAdvancedSearch", !1),
+										this.addSearch(e)
+								},
+								focus: function() {
+									document.title = this.ui.title,
+										this.ui.read = !0,
+										this.ui.unreadCount = 0,
+										this.$store.commit("updateBlurred", !1),
+										this.$store.commit("resetActiveUnreadHits"),
+										f.reset()
+								},
+								blur: function() {
+									this.ui.read = null,
+										this.ui.unreadCount = 0,
+										this.$store.commit("updateBlurred", !0)
+								},
+								notify: function(t) {
+									if (this.doWoop(),
+										1 != this.ui.read) {
+										if (this.ui.unreadCount += t,
+											this.ui.unreadCount > d.liveResultTotalLimit && (this.ui.unreadCount = d.liveResultTotalLimit),
+											document.title = "(" + this.ui.unreadCount + ") " + this.ui.title,
+											this.ui.read,
+											this.ui.read = !1,
+											window.Notification && "granted" === Notification.permission) {
+											var e = new Notification(this.translate("New live search results!"), {
+												body: 1 == this.ui.unreadCount ? this.translate("1 new item has matched your search.") : this.translate("{i} new items have matched your search.", {
+													"{i}": this.ui.unreadCount
+												})
+											});
+											e.onclick = function() {
+												e.close(),
+													window.focus()
+											}
+										}
+										f.badge(this.ui.unreadCount)
+									}
+								},
+								doWoop: function(t) {
+									this.audio.volume && (this.audio.playOnLoad = !1,
+										this.$refs.audio.currentTime > 0 && (this.$refs.audio.pause(),
+											this.$refs.audio.currentTime = 0),
+										this.$refs.audio.volume = this.audio.volume / 100,
+										t ? (this.audio.playOnLoad = !0,
+											this.$refs.audio.load()) : this.$refs.audio.play())
+								},
+								checkScroll: function() {
+									if (a(window).scrollTop() < 88)
+										a(this.$refs.top).hide();
+									else {
+										var t = a(window).scrollTop() + a(window).height();
+										t > (a("#trade .results").length ? a("#trade .results").offset().top + 88 : t) ? a(this.$refs.top).fadeIn(300) : a(this.$refs.top).fadeOut(300)
+									}
+								},
+								setPropertyFilterGroupDisabled: function(t) {
+									this.$store.commit("setFilterGroupDisabled", {
+											type: "filters",
+											group: t.group,
+											disable: t.disable
+										}),
+										this.$set(this.settings.hiddenGroups, t.group, t.disable)
+								},
+								setResultLayout: function(t) {
+									this.settings.layout = t
+								},
+								setLastDismissedNews: function(t) {
+									this.settings.lastDismissedNews = t
+								},
+								setLastSeenAbout: function(t) {
+									this.settings.lastSeenAbout = t
+								},
+								setSearchBarLayout: function(t) {
+									this.settings.searchBarLayout = t
+								},
+								setSocketVariant: function(t) {
+									this.settings.socketVariant = t
+								}
 							}
-						}
-					})
-			}))
-	}
-})),
-define("trade", ["PoE/Trade/App"], (function(t) {
-	return t
-}));
+						})
+				}))
+		}
+	})),
+	define("trade", ["PoE/Trade/App"], (function(t) {
+		return t
+	}));
