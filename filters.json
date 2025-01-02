@@ -2,7 +2,8 @@
     "result": [
         {
             "id": "stats",
-            "title": "능력치 필터"
+            "title": "능력치 필터",
+            "filters": []
         },
         {
             "id": "type_filters",
