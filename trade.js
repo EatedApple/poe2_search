@@ -7880,59 +7880,46 @@ define("bootstrap-tooltip", ["plugins"], (function() {})),
 					}
 				}),
 				a.when(
-					u.isEmpty(d.knownItems) ? fetch("items.json").then(res => res.json()) : null,
-					u.isEmpty(d.knownStats) ? fetch("stats.json").then(res => res.json()) : null,
-					u.isEmpty(d.exchangeData) ? fetch("static.json").then(res => res.json()) : null,
-					u.isEmpty(d.propertyFilters) ? fetch("filters.json").then(res => res.json()) : null
-				).then((function($, T, E, O) {
-					if ($) {
-						console.log("Raw Known Items Data ($):", $); // $[0] 전체 데이터 확인
-						if ($.result) {
-							console.log("Known Items Data:", $.result); // 정상적으로 result가 있는 경우
-							d.knownItems = $.result;
-						} else {
-							console.warn("Known Items data ($) does not contain 'result'.");
-						}
-					} else {
-						console.warn("Known Items data ($) is undefined or empty.");
-					}
+    u.isEmpty(d.knownItems) ? a.ajax("items.json") : null,
+    u.isEmpty(d.knownStats) ? a.ajax("stats.json") : null,
+    u.isEmpty(d.exchangeData) ? a.ajax("static.json") : null,
+    u.isEmpty(d.propertyFilters) ? a.ajax("filters.json") : null
+).then((function($, T, E, O) {
+    if ($ && "success" == $[1]) {
+        var k, C, I = parseInt(null !== (k = null === (C = $[2].getResponseHeader("Cache-Control")) || void 0 === C ? void 0 : C.match(/max-age=(\d+)/)[1]) && void 0 !== k ? k : 300);
+        d.knownItems = $[0].result;
+        l.set("items", d.knownItems, I + 1);
+        console.log("Known Items Data:", d.knownItems);
+    } else {
+        console.warn("Known Items data ($) is undefined or empty.");
+    }
 
-					if (T) {
-						console.log("Raw Known Stats Data (T):", T); // T[0] 전체 데이터 확인
-						if (T.result) {
-							console.log("Known Stats Data:", T.result);
-							d.knownStats = T.result;
-						} else {
-							console.warn("Known Stats data (T) does not contain 'result'.");
-						}
-					} else {
-						console.warn("Known Stats data (T) is undefined or empty.");
-					}
+    if (T && "success" == T[1]) {
+        var A, L, j = parseInt(null !== (A = null === (L = T[2].getResponseHeader("Cache-Control")) || void 0 === L ? void 0 : L.match(/max-age=(\d+)/)[1]) && void 0 !== A ? A : 300);
+        d.knownStats = T[0].result;
+        l.set("stats", d.knownStats, j + 1);
+        console.log("Known Stats Data:", d.knownStats);
+    } else {
+        console.warn("Known Stats data (T) is undefined or empty.");
+    }
 
-					if (E) {
-						console.log("Raw Exchange Data (E):", E); // E[0] 전체 데이터 확인
-						if (E.result) {
-							console.log("Exchange Data:", E.result);
-							d.exchangeData = E.result;
-						} else {
-							console.warn("Exchange data (E) does not contain 'result'.");
-						}
-					} else {
-						console.warn("Exchange Data (E) is undefined or empty.");
-					}
+    if (E && "success" == E[1]) {
+        var D, M, F = parseInt(null !== (D = null === (M = E[2].getResponseHeader("Cache-Control")) || void 0 === M ? void 0 : M.match(/max-age=(\d+)/)[1]) && void 0 !== D ? D : 300);
+        d.exchangeData = E[0].result;
+        l.set("data", d.exchangeData, F + 1);
+        console.log("Exchange Data:", d.exchangeData);
+    } else {
+        console.warn("Exchange Data (E) is undefined or empty.");
+    }
 
-					if (O) {
-						console.log("Raw Property Filters Data (O):", O); // O[0] 전체 데이터 확인
-						if (O.result) {
-							console.log("Property Filters Data:", O.result);
-							d.propertyFilters = O.result;
-						} else {
-							console.warn("Property Filters data (O) does not contain 'result'.");
-						}
-					} else {
-						console.warn("Property Filters data (O) is undefined or empty.");
-					}
-
+    if (O && "success" == O[1]) {
+        var R, N, H = parseInt(null !== (R = null === (N = O[2].getResponseHeader("Cache-Control")) || void 0 === N ? void 0 : N.match(/max-age=(\d+)/)[1]) && void 0 !== R ? R : 300);
+        d.propertyFilters = O[0].result;
+        l.set("filters", d.propertyFilters, H + 1);
+        console.log("Property Filters Data:", d.propertyFilters);
+    } else {
+        console.warn("Property Filters data (O) is undefined or empty.");
+    }
 
 					u.each(d.knownStats, (function(t) {
 							d.knownStatsFlat = u.extend(d.knownStatsFlat, u.indexBy(t.entries, "id")),
