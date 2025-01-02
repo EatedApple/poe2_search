@@ -7889,6 +7889,7 @@ define("bootstrap-tooltip", ["plugins"], (function() {})),
 						var k, C, I = parseInt(null !== (k = null === (C = $[2].headers.get("Cache-Control")) || void 0 === C ? void 0 : C.match(/max-age=(\d+)/)[1]) && void 0 !== k ? k : 300);
 						d.knownItems = $[0].result;
 						l.set("items", d.knownItems, I + 1);
+                                            console.log(d.knownItems);
 					} else {
 						console.warn("Known Items ($) is undefined or empty.");
 					}
@@ -7897,6 +7898,7 @@ define("bootstrap-tooltip", ["plugins"], (function() {})),
 						var A, L, j = parseInt(null !== (A = null === (L = T[2].headers.get("Cache-Control")) || void 0 === L ? void 0 : L.match(/max-age=(\d+)/)[1]) && void 0 !== A ? A : 300);
 						d.knownStats = T[0].result;
 						l.set("stats", d.knownStats, j + 1);
+                                            console.log(d.knownStats);
 					} else {
 						console.warn("Known Stats (T) is undefined or empty.");
 					}
@@ -7905,6 +7907,7 @@ define("bootstrap-tooltip", ["plugins"], (function() {})),
 						var D, M, F = parseInt(null !== (D = null === (M = E[2].headers.get("Cache-Control")) || void 0 === M ? void 0 : M.match(/max-age=(\d+)/)[1]) && void 0 !== D ? D : 300);
 						d.exchangeData = E[0].result;
 						l.set("data", d.exchangeData, F + 1);
+                                            console.log(d.exchangeData);
 					} else {
 						console.warn("Exchange Data (E) is undefined or empty.");
 					}
@@ -7913,6 +7916,7 @@ define("bootstrap-tooltip", ["plugins"], (function() {})),
 						var R, N, H = parseInt(null !== (R = null === (N = O[2].headers.get("Cache-Control")) || void 0 === N ? void 0 : N.match(/max-age=(\d+)/)[1]) && void 0 !== R ? R : 300);
 						d.propertyFilters = O[0].result;
 						l.set("filters", d.propertyFilters, H + 1);
+                                            console.log(d.propertyFilters);
 					} else {
 						console.warn("Property Filters (O) is undefined or empty.");
 					}
