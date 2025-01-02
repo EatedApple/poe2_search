@@ -8149,20 +8149,17 @@ define("PoE/Trade/App", ["require", "es6-promise", "vue", "vuex", "vue-infinite-
             u.isEmpty(d.exchangeData) ? fetch("static.json").then(res => res.json()) : null,
             u.isEmpty(d.propertyFilters) ? fetch("filters.json").then(res => res.json()) : null
         ).then((function($, T, E, O) {
-            if ($ && "success" == $[1]) {
-                var k, C, I = parseInt(null !== (k = null === (C = $[2].getResponseHeader("Cache-Control")) || void 0 === C ? void 0 : C.match(/max-age=(\d+)/)[1]) && void 0 !== k ? k : 300);
-                d.knownItems = $[0].result,
-                l.set("items", d.knownItems, I + 1)
+            if ($) {
+                d.knownItems = $.result;
             }
-            if (T && "success" == T[1]) {
-                var A, L, j = parseInt(null !== (A = null === (L = T[2].getResponseHeader("Cache-Control")) || void 0 === L ? void 0 : L.match(/max-age=(\d+)/)[1]) && void 0 !== A ? A : 300);
-                d.knownStats = T[0].result,
-                l.set("stats", d.knownStats, j + 1)
+            if (T) {
+                d.knownStats = T.result;
             }
-            if (E && "success" == E[1]) {
-                var D, M, F = parseInt(null !== (D = null === (M = E[2].getResponseHeader("Cache-Control")) || void 0 === M ? void 0 : M.match(/max-age=(\d+)/)[1]) && void 0 !== D ? D : 300);
-                d.exchangeData = E[0].result,
-                l.set("data", d.exchangeData, F + 1)
+            if (E) {
+                d.exchangeData = E.result;
+            }
+            if (O) {
+                d.propertyFilters = O.result;
             }
             if (O && "success" == O[1]) {
                 var R, N, H = parseInt(null !== (R = null === (N = O[2].getResponseHeader("Cache-Control")) || void 0 === N ? void 0 : N.match(/max-age=(\d+)/)[1]) && void 0 !== R ? R : 300);
