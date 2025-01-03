@@ -1954,8 +1954,14 @@
                   data-toggle="tab"><span>아이템 대량 교환</span></a></li>
          </ul>
       </div>
-      <div class="top">
+      <div class="top" style="margin: 5; color:white;">
          <!----> <!---->
+         <div class="intro">
+            <span style="
+    font-size: 20px;
+    font-weight: bold;
+">검색시 사이트에 로그인을 하라고 뜬다면, 카카오로그인 &gt; 거래소 &gt; 오른쪽 상단 영국국기 클릭 &gt; 사용하기</span>
+         </div>
          <div class="search-panel">
             <div class="search-bar">
                <div class="search-left">
@@ -5331,10 +5337,10 @@
 
          function loadData() {
             return Promise.all([
-               fetch("filters.json").then((res) => res.json()),
-               fetch("items_ko.json").then((res) => res.json()),
-               fetch("items_en.json").then((res) => res.json()),
-               fetch("stats.json").then((res) => res.json())
+               fetch("https://eateapple.xyz/filters.json").then((res) => res.json()),
+               fetch("https://eateapple.xyz/items_ko.json").then((res) => res.json()),
+               fetch("https://eateapple.xyz/items_en.json").then((res) => res.json()),
+               fetch("https://eateapple.xyz/stats.json").then((res) => res.json())
             ])
                .then(([filtersData, koData, enData, statsData]) => {
                   // 데이터를 쿠키에 저장
@@ -5608,8 +5614,8 @@
                });
 
                const cleanedData = removeNullValues(itemData);
-               //moveSiteOrBridge(JSON.stringify(cleanedData));
-               console.log("After Cleaning:", JSON.stringify(cleanedData, null, 2));
+               moveSiteOrBridge(JSON.stringify(cleanedData));
+               //console.log("After Cleaning:", JSON.stringify(cleanedData, null, 2));
             });
          }
 
