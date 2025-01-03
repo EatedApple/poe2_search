@@ -5,8 +5,8 @@
    <meta name="viewport" content="width=544, initial-scale=1">
    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-   <meta property="og:locale" content="ko_KR">
    <meta name="monetag" content="9e8fee21a06f468646574fc548973edf">
+   <meta property="og:locale" content="ko_KR">
    <link
       href="https://web.poecdn.com/protected/css/font.css?v=b65b51329ef3cc9729a6f6388a4164d6&amp;key=4rcNCimGiCj3Ztjc_v1BUg"
       media="screen" rel="stylesheet" type="text/css">
@@ -1937,7 +1937,7 @@
 </head>
 
 <body class="modern trade ko_KR">
-   <div id="trade">
+   <div id="trade" style="max-width: 100%;">
       <div>
          <div class="toast-container toast-top-center"></div>
          <div class="toast-container toast-bottom-center"></div>
@@ -4039,7 +4039,7 @@
             <div class="search-bar search-advanced">
                <!---->
                <div class="search-advanced-items">
-                  <div class="search-advanced-pane blue">
+                  <div class="search-advanced-pane blue" style="width: 100%;">
                      <div class="filter-group expanded">
                         <div class="filter-group-header">
                            <div class="filter"><span class="input-group-btn"><button
@@ -5258,8 +5258,6 @@
                         </div>
                         <div class="clear"></div>
                      </div>
-                  </div>
-                  <div class="search-advanced-pane brown">
                      <div class="filter-group expanded">
                         <div class="filter-group-header">
                            <div class="filter">
@@ -5286,7 +5284,8 @@
                                        <!---->
                                        <div class="multiselect__spinner" style="display: none;"></div>
                                        <input name="" type="text" autocomplete="off" placeholder="+ 능력치 필터 추가"
-                                          class="multiselect__input"> <!---->
+                                          class="multiselect__input">
+                                       <!---->
                                     </div>
                                     <div class="multiselect__content-wrapper" style="max-height: 300px; display: none;">
                                        <ul class="multiselect__content" style="display: inline-block;">
@@ -5325,7 +5324,56 @@
       <div id="poe-popup-container"></div>
       <script src="https://web.poecdn.com/js/translate.ko_KR.js?v=7ffdf7721c526f7b9c7a847c775acc38"></script>
       <script>
-         document.addEventListener("DOMContentLoaded", function () {
+
+         let filtersJsonData = {};
+         let itemsKoJson = {};
+         let itemsEnJson = {};
+         let statsJson = {};
+
+         function loadData() {
+            return Promise.all([
+               fetch("filters.json").then((res) => res.json()),
+               fetch("items_ko.json").then((res) => res.json()),
+               fetch("items_en.json").then((res) => res.json()),
+               fetch("stats.json").then((res) => res.json())
+            ])
+               .then(([filtersData, koData, enData, statsData]) => {
+                  // 데이터를 쿠키에 저장
+                  filtersJsonData = filtersData;
+                  itemsKoJson = koData;
+                  itemsEnJson = enData;
+                  statsJson = statsData;
+
+                  console.log("Data loaded and stored in cookies.");
+               })
+               .catch((error) => {
+                  console.error("Failed to load data:", error);
+               });
+         }
+
+         document.addEventListener("DOMContentLoaded", async function () {
+            try {
+               // 데이터 로드 완료 대기
+               await loadData();
+
+               console.log("Data loaded successfully.");
+               setEventListener();
+
+            } catch (error) {
+               console.error("Error during initialization:", error);
+            }
+         });
+
+         function setEventListener() {
+            setSearchBtn();
+            setFilterEvent();
+            setStats();
+            setToggleBtn();
+            setRemoveBtn();
+            setItemNameFilter();
+         }
+
+         function setFilterEvent() {
             document.body.addEventListener("click", function (event) {
                const target = event.target.closest(".filter-select");
 
@@ -5376,11 +5424,9 @@
                }
             });
 
+         }
 
-         });
-
-
-         document.addEventListener("DOMContentLoaded", function () {
+         function setSearchBtn() {
             const searchBtn = document.querySelector(".search-btn");
 
             if (!searchBtn) {
@@ -5566,7 +5612,7 @@
                //moveSiteOrBridge(JSON.stringify(cleanedData));
                console.log("After Cleaning:", JSON.stringify(cleanedData, null, 2));
             });
-         });
+         }
 
          function moveSiteOrBridge(itemData) {
             if (navigator.userAgent.includes("MyAppWebView")) {
@@ -5607,37 +5653,16 @@
             return obj;
          }
 
-         document.addEventListener("DOMContentLoaded", function () {
-            const filtersURL = "https://eatedapple.github.io/poe2_search/stats.json";
+         function setStats() {
+            const targetFilter = findTargetFilter();
+            if (targetFilter) {
+               // 초기 데이터 렌더링
+               updateMultiselectContent(targetFilter, statsJson);
 
-            // filters 데이터를 가져와 적절한 위치의 multiselect__content에 동적으로 추가
-            function loadFilters() {
-               fetch(filtersURL)
-                  .then((response) => {
-                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                     }
-                     return response.json();
-                  })
-                  .then((data) => {
-                     if (data.result) {
-                        const targetFilter = findTargetFilter();
-                        if (targetFilter) {
-                           // 초기 데이터 렌더링
-                           updateMultiselectContent(targetFilter, data.result);
-
-                           // 검색 필터링 이벤트 추가
-                           addSearchFilter(targetFilter, data.result);
-                        } else {
-                           console.warn("'능력치 필터 추가'를 포함하는 filter-select를 찾을 수 없습니다.");
-                        }
-                     } else {
-                        console.warn("JSON 데이터에 'result' 필드가 없습니다.");
-                     }
-                  })
-                  .catch((error) => {
-                     console.error("Failed to fetch filters:", error);
-                  });
+               // 검색 필터링 이벤트 추가
+               addSearchFilter(targetFilter, statsJson);
+            } else {
+               console.warn("'능력치 필터 추가'를 포함하는 filter-select를 찾을 수 없습니다.");
             }
 
             // "능력치 필터 추가"를 포함한 filter-select 찾기
@@ -5719,6 +5744,8 @@
                   console.error("multiselect__content 요소를 찾을 수 없습니다.");
                   return;
                }
+
+               console.log(groups);
 
                // 기존 내용 제거
                multiselectContent.innerHTML = "";
@@ -5806,12 +5833,9 @@
                   inputField.value = "";
                }
             }
+         }
 
-            // 페이지 로드 시 filters 데이터 가져오기
-            loadFilters();
-         });
-
-         document.addEventListener("DOMContentLoaded", function () {
+         function setToggleBtn() {
             const toggleButtons = document.querySelectorAll(".btn.toggle-btn");
 
             if (toggleButtons.length === 0) {
@@ -5843,10 +5867,9 @@
                   }
                });
             });
-         });
+         }
 
-
-         document.addEventListener("DOMContentLoaded", function () {
+         function setRemoveBtn() {
             const removeButtons = document.querySelectorAll(".btn.remove-btn");
 
             if (removeButtons.length === 0) {
@@ -5884,10 +5907,9 @@
                   });
                });
             });
-         });
+         }
 
-
-         document.addEventListener("DOMContentLoaded", function () {
+         function setItemNameFilter() {
             if (!itemsKoJson || !itemsEnJson) {
                console.warn("Data not found in cookies. Loading data from server...");
                loadData().then(() => {
@@ -5984,33 +6006,6 @@
                return text.replace(regex, "<mark style='background: yellow; color: black; font-weight: bold;'>$1</mark>");
             }
 
-         });
-
-         let filtersJsonData = {};
-         let itemsKoJson = {};
-         let itemsEnJson = {};
-         let statsJson = {};
-         loadData();
-
-         function loadData() {
-            return Promise.all([
-               fetch("https://eatedapple.github.io/poe2_search/filters.json").then((res) => res.json()),
-               fetch("https://eatedapple.github.io/poe2_search/items_ko.json").then((res) => res.json()),
-               fetch("https://eatedapple.github.io/poe2_search/items_en.json").then((res) => res.json()),
-               fetch("https://eatedapple.github.io/poe2_search/stats.json").then((res) => res.json())
-            ])
-               .then(([filtersData, koData, enData, statsData]) => {
-                  // 데이터를 쿠키에 저장
-                  filtersJsonData = filtersData;
-                  itemsKoJson = koData;
-                  itemsEnJson = enData;
-                  statsJson = statsData;
-
-                  console.log("Data loaded and stored in cookies.");
-               })
-               .catch((error) => {
-                  console.error("Failed to load data:", error);
-               });
          }
 
       </script>
