@@ -5461,6 +5461,15 @@
                         const mutateElement = filter.querySelector(".mutate-type");
                         const dataId = mutateElement ? mutateElement.getAttribute("data-id") : null;
                         const dataType = mutateElement ? mutateElement.getAttribute("data-type") : null;
+                        // 숫자 입력 필드 처리 (최소값/최대값)
+                        const minInput = filter.querySelector('.form-control.minmax[placeholder="최소"]');
+                        const maxInput = filter.querySelector('.form-control.minmax[placeholder="최대"]');
+                        const minValue = minInput
+                           ? parseInt(minInput.value.trim(), 10)
+                           : null;
+                        const maxValue = maxInput
+                           ? parseInt(maxInput.value.trim(), 10)
+                           : null;
 
                         if (dataId && dataType) {
                            // 능력치 필터(stats) 처리 - 중복 확인 추가
@@ -5471,7 +5480,7 @@
                            if (!existingFilter) {
                               const statFilter = {
                                  id: dataId,
-                                 value: { min: null, max: null },
+                                 value: { min: minValue, max: maxValue },
                                  disabled: false,
                                  type: dataType,
                               };
@@ -5525,16 +5534,6 @@
                                        );
                                     }
                                  } else {
-                                    // 숫자 입력 필드 처리 (최소값/최대값)
-                                    const minInput = filter.querySelector('.form-control.minmax[placeholder="최소"]');
-                                    const maxInput = filter.querySelector('.form-control.minmax[placeholder="최대"]');
-                                    const minValue = minInput
-                                       ? parseInt(minInput.value.trim(), 10)
-                                       : null;
-                                    const maxValue = maxInput
-                                       ? parseInt(maxInput.value.trim(), 10)
-                                       : null;
-
                                     console.log(`Filter Title: ${filterTitle}`);
                                     console.log(`Group ID: ${groupId}`);
                                     console.log(`Min Value: ${minValue}`);
@@ -5562,11 +5561,20 @@
                });
 
                const cleanedData = removeNullValues(itemData);
-               sendPostRequest(cleanedData);
+               //moveSiteOrBridge(JSON.stringify(cleanedData));
                console.log("After Cleaning:", JSON.stringify(cleanedData, null, 2));
             });
          });
 
+         function moveSiteOrBridge(itemData) {
+            if (navigator.userAgent.includes("MyAppWebView")) {
+               setupBridge(itemData);
+            } else {
+               const encodedData = encodeURIComponent(itemData);
+               const targetUrl = `https://www.pathofexile.com/trade2/search/poe2/Standard?q=${encodedData}`;
+               window.open(targetUrl, "_blank"); // 새 탭에서 열기
+            }
+         }
 
          function removeNullValues(obj, depth = 0) {
             const padding = " ".repeat(depth * 2); // 디버깅용 들여쓰기
@@ -6001,42 +6009,6 @@
                .catch((error) => {
                   console.error("Failed to load data:", error);
                });
-         }
-
-
-         async function sendPostRequest(itemData) {
-            const url = "https://www.pathofexile.com/api/trade2/search/poe2/Standard";
-            const payload = JSON.stringify(itemData);
-
-            const headers = {
-               "Content-Type": "application/json",
-               "Accept": "*/*",
-               "Accept-Encoding": "gzip, deflate, br, zstd",
-               "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-               "Origin": "https://www.pathofexile.com",
-               "Referer": "https://www.pathofexile.com/trade2/search/poe2/Standard",
-               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-               "X-Requested-With": "XMLHttpRequest",
-               "Cookie": "cf_clearance=RJPaVxiYFx4Dy2GJ...; POESESSID=45d9eac7950b1f64cf18edd7ea30176f",
-            };
-
-            try {
-               const response = await fetch(url, {
-                  method: "POST",
-                  headers: headers,
-                  body: payload,
-               });
-
-               if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-               }
-
-               const data = await response.json();
-               console.log("Response data:", data);
-               return data;
-            } catch (error) {
-               console.error("Error sending POST request:", error);
-            }
          }
 
       </script>
