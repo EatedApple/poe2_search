@@ -5348,8 +5348,6 @@
                   itemsKoJson = koData;
                   itemsEnJson = enData;
                   statsJson = statsData;
-
-                  console.log("Data loaded and stored in cookies.");
                })
                .catch((error) => {
                   console.error("Failed to load data:", error);
@@ -5360,8 +5358,6 @@
             try {
                // 데이터 로드 완료 대기
                await loadData();
-
-               console.log("Data loaded successfully.");
                setEventListener();
 
             } catch (error) {
@@ -5470,7 +5466,6 @@
                   if (koIndex !== -1) {
                      const enKeys = Object.keys(itemsEnJson);
                      const enName = enKeys[koIndex];
-                     console.log(`Found item: ${searchValue} (Index: ${koIndex}, English Name: ${enName})`);
                      itemData.query.type = enName;
                   } else {
                      console.warn(`Item not found in items_ko.json: ${searchValue}`);
@@ -5482,7 +5477,7 @@
                const toggleButtons = document.querySelectorAll(".btn.toggle-btn");
                toggleButtons.forEach((toggleBtn) => {
                   const filterGroup = toggleBtn.closest(".filter-group");
-
+                  
                   if (!filterGroup) {
                      console.warn("Filter group not found for this toggle button.");
                      return;
@@ -5497,12 +5492,17 @@
 
                   // 체크박스가 `off` 상태라면 데이터 제외
                   if (toggleBtn.classList.contains("off")) {
-                     console.log("Filter group excluded (off):", filterGroup);
+                     return;
                   } else {
-                     console.log("Filter group included (on):", filterGroup);
 
                      // 필터 처리
                      filterGroupBody.querySelectorAll(".filter").forEach((filter) => {
+                        const filterFullSpan = toggleBtn.closest(".filter.full-span");
+
+                        if (filterFullSpan) {
+                           return;
+                        }
+                        
                         const filterTitleElement = filter.querySelector(".filter-title");
                         const filterTitle = filterTitleElement ? filterTitleElement.innerText.trim() : null;
 
@@ -5526,20 +5526,23 @@
 
                         if (dataId && dataType) {
                            // 능력치 필터(stats) 처리 - 중복 확인 추가
-                           const existingFilter = itemData.query.stats[0].filters.find(
-                              (stat) => stat.id === dataId && stat.type === dataType
-                           );
-
-                           if (!existingFilter) {
-                              const statFilter = {
-                                 id: dataId,
-                                 value: { min: minValue, max: maxValue },
-                                 disabled: false,
-                                 type: dataType,
-                              };
-                              itemData.query.stats[0].filters.push(statFilter);
+                           const toggleButton = filter.querySelector(".toggle-btn");
+                           if (!toggleButton.classList.contains("off")) {
+                              const existingFilter = itemData.query.stats[0].filters.find(
+                                 (stat) => stat.id === dataId && stat.type === dataType
+                              );
+                              
+                              if (!existingFilter) {
+                                 const statFilter = {
+                                    id: dataId,
+                                    value: { min: minValue, max: maxValue },
+                                    disabled: false,
+                                    type: dataType,
+                                 };
+                                 itemData.query.stats[0].filters.push(statFilter);
+                              }
                            } else {
-                              console.log(`Duplicate stats filter skipped: ${dataId}`);
+                              return;
                            }
                         } else {
                            // 일반 필터 처리: filters.json과 매칭
@@ -5569,12 +5572,6 @@
                                     );
 
                                     if (matchingOption) {
-                                       console.log(`Filter Title: ${filterTitle}`);
-                                       console.log(`Group ID: ${groupId}`);
-                                       console.log(`Input Value: ${inputValue}`);
-                                       console.log(`Matching Filter ID: ${matchingFilter.id}`);
-                                       console.log(`Matching Option ID: ${matchingOption.id}`);
-
                                        // itemData에 값 추가
                                        if (itemData.query.filters[groupId]) {
                                           itemData.query.filters[groupId].filters[matchingFilter.id] = {
@@ -5587,11 +5584,6 @@
                                        );
                                     }
                                  } else {
-                                    console.log(`Filter Title: ${filterTitle}`);
-                                    console.log(`Group ID: ${groupId}`);
-                                    console.log(`Min Value: ${minValue}`);
-                                    console.log(`Max Value: ${maxValue}`);
-
                                     if (minValue !== null || maxValue !== null) {
                                        // itemData에 값 추가
                                        if (itemData.query.filters[groupId]) {
@@ -5728,17 +5720,16 @@
                   newFilter.remove();
                });
 
+               var toggleBtn = newFilter.querySelector(".toggle-btn");
+               toggleBtn.addEventListener("click", function () {
+                  toggleBtn.classList.toggle("off");
+               });
+
                // filter-padded 위에 필터 추가
                const filterPadded = parentContainer.querySelector(".filter.filter-padded");
                if (filterPadded) {
                   parentContainer.insertBefore(newFilter, filterPadded);
-                  console.log("새로운 'filter full-span'이 filter-padded 위에 추가되었습니다:", {
-                     text: selectedText,
-                     id: dataId,
-                     type: dataType,
-                  });
                } else {
-                  console.warn("filter-padded 요소를 찾을 수 없습니다. 새 필터는 부모의 맨 마지막에 추가됩니다.");
                   parentContainer.appendChild(newFilter);
                }
             }
@@ -5749,9 +5740,6 @@
                   console.error("multiselect__content 요소를 찾을 수 없습니다.");
                   return;
                }
-
-               console.log(groups);
-
                // 기존 내용 제거
                multiselectContent.innerHTML = "";
 
@@ -5782,8 +5770,6 @@
 
                      // 옵션 클릭 시 이벤트 추가 (선택된 옵션 로직)
                      listItem.querySelector(".multiselect__option").addEventListener("click", function () {
-                        console.log(`Filter selected: ID=${entry.id}, Text=${entry.text}`);
-
                         addFilterAbovePadded(entry, entry.text);
 
                         // 입력 필드 초기화
@@ -5793,8 +5779,6 @@
                      multiselectContent.appendChild(listItem);
                   });
                });
-
-               console.log("Filters dynamically added to multiselect__content:", groups);
             }
 
             // 검색 필터링 이벤트 추가
@@ -5851,8 +5835,6 @@
             // 모든 버튼에 클릭 이벤트 추가
             toggleButtons.forEach((toggleBtn) => {
                toggleBtn.addEventListener("click", () => {
-                  console.log("Button clicked:", toggleBtn);
-
                   // `off` 클래스를 토글
                   toggleBtn.classList.toggle("off");
 
@@ -5885,8 +5867,6 @@
             // 모든 remove-btn에 클릭 이벤트 추가
             removeButtons.forEach((removeBtn) => {
                removeBtn.addEventListener("click", () => {
-                  console.log("Remove button clicked:", removeBtn);
-
                   // 버튼의 가장 가까운 filter-group 찾기
                   const filterGroup = removeBtn.closest(".filter-group");
 
@@ -5907,7 +5887,6 @@
                   const filtersToRemove = filterGroupBody.querySelectorAll(".filter:not(.filter-padded)");
 
                   filtersToRemove.forEach((filter) => {
-                     console.log("Removing filter:", filter);
                      filter.remove();
                   });
                });
@@ -5951,7 +5930,6 @@
                if (selectedItem) {
                   const selectedText = selectedItem.innerText.trim();
                   searchInput.value = selectedText; // 검색 입력값 업데이트
-                  console.log(`Selected item: ${selectedText}`);
 
                   // 드롭다운 숨기기
                   contentWrapper.style.display = "none";
@@ -5965,8 +5943,6 @@
                   return;
                }
 
-               console.log("Updating dropdown with filter:", itemsKoJson); // 디버깅용
-
                // 검색어가 없으면 전체 데이터 표시
                const filteredItems =
                   filter.trim() === ""
@@ -5974,8 +5950,6 @@
                      : Object.keys(itemsKoJson).filter((key) =>
                         key.toLowerCase().includes(filter.toLowerCase()) // 대소문자 무시 비교
                      );
-
-               console.log("Filtered items:", filteredItems); // 디버깅용
 
                // 드롭다운 초기화
                contentWrapper.innerHTML = "";
@@ -5999,7 +5973,6 @@
             // 검색 입력값 변경 시 필터링
             searchInput.addEventListener("input", function () {
                const searchValue = searchInput.value.trim();
-               console.log("Search input value:", searchValue); // 디버깅용
                updateDropdown(searchValue); // 필터링
             });
 
