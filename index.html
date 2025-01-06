@@ -1931,9 +1931,57 @@
          }
       }
    </style>
+   <style>
+      /* 로딩 오버레이 스타일 */
+      #loadingOverlay {
+         background: black;
+         position: fixed !important;
+         top: 0 !important;
+         left: 0 !important;
+         width: 100% !important;
+         height: 100% !important;
+         display: flex !important;
+         /* 우선순위 강제 적용 */
+         justify-content: center !important;
+         align-items: center !important;
+         z-index: 9999 !important;
+         visibility: hidden;
+         opacity: 0;
+         transition: visibility 0s, opacity 0.3s ease !important;
+      }
+
+
+      #loadingOverlay.show {
+         visibility: visible;
+         opacity: 0.8;
+      }
+
+      /* 스피너 스타일 */
+      .spinner {
+         border: 4px solid rgba(255, 255, 255, 0.3);
+         border-top: 4px solid white;
+         border-radius: 50%;
+         width: 40px;
+         height: 40px;
+         animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+         from {
+            transform: rotate(0deg);
+         }
+
+         to {
+            transform: rotate(360deg);
+         }
+      }
+   </style>
 </head>
 
 <body class="modern trade ko_KR" style="background: black;">
+   <div id="loadingOverlay">
+      <div class="spinner"></div>
+   </div>
    <div id="trade" style="max-width: 100%;">
       <div>
          <div class="toast-container toast-top-center"></div>
@@ -1945,9 +1993,9 @@
          <div></div>
       </div>
       <div style="text-align: center;">
-         <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
-         <ins class="eas6a97888e2" data-zoneid="5508738"></ins> 
-         <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+         <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+         <ins class="eas6a97888e2" data-zoneid="5508738"></ins>
+         <script>(AdProvider = window.AdProvider || []).push({ "serve": {} });</script>
       </div>
       <div class="navigation">
          <ul role="tablist" class="nav nav-tabs main">
@@ -5324,384 +5372,417 @@
                <div class="clear"></div>
             </div>
             <div class="bottom">
-               <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
-               <ins class="eas6a97888e2" data-zoneid="5508746"></ins> 
-               <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+               <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+               <ins class="eas6a97888e2" data-zoneid="5508746"></ins>
+               <script>(AdProvider = window.AdProvider || []).push({ "serve": {} });</script>
             </div>
          </div>
       </div>
       <div id="poe-popup-container"></div>
    </div>
-      <script src="https://web.poecdn.com/js/translate.ko_KR.js?v=7ffdf7721c526f7b9c7a847c775acc38"></script>
-      <script>
+   <script src="https://web.poecdn.com/js/translate.ko_KR.js?v=7ffdf7721c526f7b9c7a847c775acc38"></script>
+   <script>
 
-         let filtersJsonData = {};
-         let itemsKoJson = {};
-         let itemsEnJson = {};
-         let statsJson = {};
+      let filtersJsonData = {};
+      let itemsKoJson = {};
+      let itemsEnJson = {};
+      let statsJson = {};
 
-         function loadData() {
-            return Promise.all([
-               fetch("https://eateapple.xyz/filters.json").then((res) => res.json()),
-               fetch("https://eateapple.xyz/items_ko.json").then((res) => res.json()),
-               fetch("https://eateapple.xyz/items_en.json").then((res) => res.json()),
-               fetch("https://eateapple.xyz/stats.json").then((res) => res.json())
-            ])
-               .then(([filtersData, koData, enData, statsData]) => {
-                  // 데이터를 쿠키에 저장
-                  filtersJsonData = filtersData;
-                  itemsKoJson = koData;
-                  itemsEnJson = enData;
-                  statsJson = statsData;
-               })
-               .catch((error) => {
-                  console.error("Failed to load data:", error);
-               });
+      function loadData() {
+         return Promise.all([
+            fetch("https://eateapple.xyz/filters.json").then((res) => res.json()),
+            fetch("https://eateapple.xyz/items_ko.json").then((res) => res.json()),
+            fetch("https://eateapple.xyz/items_en.json").then((res) => res.json()),
+            fetch("https://eateapple.xyz/stats.json").then((res) => res.json())
+         ])
+            .then(([filtersData, koData, enData, statsData]) => {
+               // 데이터를 쿠키에 저장
+               filtersJsonData = filtersData;
+               itemsKoJson = koData;
+               itemsEnJson = enData;
+               statsJson = statsData;
+            })
+            .catch((error) => {
+               console.error("Failed to load data:", error);
+            });
+      }
+
+      document.addEventListener("DOMContentLoaded", async function () {
+         try {
+            // 데이터 로드 완료 대기
+            await loadData();
+            setEventListener();
+
+         } catch (error) {
+            console.error("Error during initialization:", error);
          }
+      });
 
-         document.addEventListener("DOMContentLoaded", async function () {
-            try {
-               // 데이터 로드 완료 대기
-               await loadData();
-               setEventListener();
+      function setEventListener() {
+         setSearchBtn();
+         setFilterEvent();
+         setStats();
+         setToggleBtn();
+         setRemoveBtn();
+         setItemNameFilter();
+      }
 
-            } catch (error) {
-               console.error("Error during initialization:", error);
+      function setFilterEvent() {
+         document.body.addEventListener("click", function (event) {
+            const target = event.target.closest(".filter-select");
+
+            if (target) {
+               const contentWrapper = target.querySelector(".multiselect__content-wrapper");
+               const inputField = target.querySelector(".multiselect__input");
+
+               // 다른 드롭다운 닫기
+               document.querySelectorAll(".filter-select .multiselect__content-wrapper").forEach((wrapper) => {
+                  if (wrapper !== contentWrapper) {
+                     wrapper.style.display = "none";
+                  }
+               });
+
+               // 현재 드롭다운 토글
+               if (contentWrapper) {
+                  contentWrapper.style.display = contentWrapper.style.display === "none" || !contentWrapper.style.display ? "block" : "none";
+               }
+
+               // 옵션 선택 처리
+               contentWrapper.addEventListener("click", function handleOptionClick(e) {
+                  e.stopPropagation();
+                  const option = e.target.closest(".multiselect__option");
+
+                  if (option) {
+                     const selectedText = option.textContent.trim();
+
+                     // 선택한 필터와 같은 부모 안에서 filter-padded 위에 추가
+                     if (inputField.placeholder === "+ 능력치 필터 추가") {
+                        //addFilterAbovePadded(target, selectedText);
+                     } else {
+                        // 일반적인 필터는 input에 값 설정
+                        inputField.value = selectedText;
+                     }
+
+                     // 드롭다운 닫기
+                     contentWrapper.style.display = "none";
+                  }
+
+                  // 중복 이벤트 방지
+                  contentWrapper.removeEventListener("click", handleOptionClick);
+               });
+            } else {
+               // 드롭다운 외부 클릭 시 닫기
+               document.querySelectorAll(".filter-select .multiselect__content-wrapper").forEach((wrapper) => {
+                  wrapper.style.display = "none";
+               });
             }
          });
 
-         function setEventListener() {
-            setSearchBtn();
-            setFilterEvent();
-            setStats();
-            setToggleBtn();
-            setRemoveBtn();
-            setItemNameFilter();
+      }
+
+      function setSearchBtn() {
+         const searchBtn = document.querySelector(".search-btn");
+
+         if (!searchBtn) {
+            console.error("Search button not found!");
+            return;
          }
 
-         function setFilterEvent() {
-            document.body.addEventListener("click", function (event) {
-               const target = event.target.closest(".filter-select");
+         searchBtn.addEventListener("click", function () {
+            console.log("Search button clicked!");
 
-               if (target) {
-                  const contentWrapper = target.querySelector(".multiselect__content-wrapper");
-                  const inputField = target.querySelector(".multiselect__input");
+            // 버튼 클릭 시마다 itemData 초기화
+            let itemData = {
+               query: {
+                  filters: {
+                     type_filters: { filters: { ilvl: { min: null, max: null }, quality: { min: null, max: null } } },
+                     equipment_filters: { filters: { damage: { min: null, max: null }, aps: { min: null, max: null } } },
+                     req_filters: { filters: {} },
+                     map_filters: { filters: { map_tier: { min: null, max: null } } },
+                     misc_filters: { filters: { gem_level: { min: null, max: null } } },
+                     trade_filters: { filters: { price: { min: null, max: null } } },
+                  },
+                  status: { option: "online" },
+                  stats: [{ type: "and", filters: [], disabled: false }],
+               },
+               sort: { price: "asc" },
+            };
 
-                  // 다른 드롭다운 닫기
-                  document.querySelectorAll(".filter-select .multiselect__content-wrapper").forEach((wrapper) => {
-                     if (wrapper !== contentWrapper) {
-                        wrapper.style.display = "none";
-                     }
-                  });
+            const searchInput = document.querySelector(".multiselect__input[placeholder='아이템 검색...']");
+            if (searchInput && searchInput.value.trim()) {
+               const searchValue = searchInput.value.trim();
 
-                  // 현재 드롭다운 토글
-                  if (contentWrapper) {
-                     contentWrapper.style.display = contentWrapper.style.display === "none" || !contentWrapper.style.display ? "block" : "none";
-                  }
+               // items_ko.json에서 index 찾기
+               const koKeys = Object.keys(itemsKoJson);
+               const koIndex = koKeys.findIndex((key) => key === searchValue);
 
-                  // 옵션 선택 처리
-                  contentWrapper.addEventListener("click", function handleOptionClick(e) {
-                     e.stopPropagation();
-                     const option = e.target.closest(".multiselect__option");
-
-                     if (option) {
-                        const selectedText = option.textContent.trim();
-
-                        // 선택한 필터와 같은 부모 안에서 filter-padded 위에 추가
-                        if (inputField.placeholder === "+ 능력치 필터 추가") {
-                           //addFilterAbovePadded(target, selectedText);
-                        } else {
-                           // 일반적인 필터는 input에 값 설정
-                           inputField.value = selectedText;
-                        }
-
-                        // 드롭다운 닫기
-                        contentWrapper.style.display = "none";
-                     }
-
-                     // 중복 이벤트 방지
-                     contentWrapper.removeEventListener("click", handleOptionClick);
-                  });
+               if (koIndex !== -1) {
+                  const enKeys = Object.keys(itemsEnJson);
+                  const enName = enKeys[koIndex];
+                  itemData.query.type = enName;
                } else {
-                  // 드롭다운 외부 클릭 시 닫기
-                  document.querySelectorAll(".filter-select .multiselect__content-wrapper").forEach((wrapper) => {
-                     wrapper.style.display = "none";
-                  });
+                  console.warn(`Item not found in items_ko.json: ${searchValue}`);
                }
-            });
-
-         }
-
-         function setSearchBtn() {
-            const searchBtn = document.querySelector(".search-btn");
-
-            if (!searchBtn) {
-               console.error("Search button not found!");
-               return;
+            } else {
+               console.log("No search input provided.");
             }
 
-            searchBtn.addEventListener("click", function () {
-               console.log("Search button clicked!");
+            const toggleButtons = document.querySelectorAll(".btn.toggle-btn");
+            toggleButtons.forEach((toggleBtn) => {
+               const filterGroup = toggleBtn.closest(".filter-group");
 
-               // 버튼 클릭 시마다 itemData 초기화
-               let itemData = {
-                  query: {
-                     filters: {
-                        type_filters: { filters: { ilvl: { min: null, max: null }, quality: { min: null, max: null } } },
-                        equipment_filters: { filters: { damage: { min: null, max: null }, aps: { min: null, max: null } } },
-                        req_filters: { filters: {} },
-                        map_filters: { filters: { map_tier: { min: null, max: null } } },
-                        misc_filters: { filters: { gem_level: { min: null, max: null } } },
-                        trade_filters: { filters: { price: { min: null, max: null } } },
-                     },
-                     status: { option: "online" },
-                     stats: [{ type: "and", filters: [], disabled: false }],
-                  },
-                  sort: { price: "asc" },
-               };
-
-               const searchInput = document.querySelector(".multiselect__input[placeholder='아이템 검색...']");
-               if (searchInput && searchInput.value.trim()) {
-                  const searchValue = searchInput.value.trim();
-
-                  // items_ko.json에서 index 찾기
-                  const koKeys = Object.keys(itemsKoJson);
-                  const koIndex = koKeys.findIndex((key) => key === searchValue);
-
-                  if (koIndex !== -1) {
-                     const enKeys = Object.keys(itemsEnJson);
-                     const enName = enKeys[koIndex];
-                     itemData.query.type = enName;
-                  } else {
-                     console.warn(`Item not found in items_ko.json: ${searchValue}`);
-                  }
-               } else {
-                  console.log("No search input provided.");
+               if (!filterGroup) {
+                  console.warn("Filter group not found for this toggle button.");
+                  return;
                }
 
-               const toggleButtons = document.querySelectorAll(".btn.toggle-btn");
-               toggleButtons.forEach((toggleBtn) => {
-                  const filterGroup = toggleBtn.closest(".filter-group");
-                  
-                  if (!filterGroup) {
-                     console.warn("Filter group not found for this toggle button.");
-                     return;
-                  }
+               const filterGroupBody = filterGroup.querySelector(".filter-group-body");
 
-                  const filterGroupBody = filterGroup.querySelector(".filter-group-body");
+               if (!filterGroupBody) {
+                  console.warn("Filter group body not found.");
+                  return;
+               }
 
-                  if (!filterGroupBody) {
-                     console.warn("Filter group body not found.");
-                     return;
-                  }
+               // 체크박스가 `off` 상태라면 데이터 제외
+               if (toggleBtn.classList.contains("off")) {
+                  return;
+               } else {
 
-                  // 체크박스가 `off` 상태라면 데이터 제외
-                  if (toggleBtn.classList.contains("off")) {
-                     return;
-                  } else {
+                  // 필터 처리
+                  filterGroupBody.querySelectorAll(".filter").forEach((filter) => {
+                     const filterFullSpan = toggleBtn.closest(".filter.full-span");
 
-                     // 필터 처리
-                     filterGroupBody.querySelectorAll(".filter").forEach((filter) => {
-                        const filterFullSpan = toggleBtn.closest(".filter.full-span");
+                     if (filterFullSpan) {
+                        return;
+                     }
 
-                        if (filterFullSpan) {
-                           return;
-                        }
-                        
-                        const filterTitleElement = filter.querySelector(".filter-title");
-                        const filterTitle = filterTitleElement ? filterTitleElement.innerText.trim() : null;
+                     const filterTitleElement = filter.querySelector(".filter-title");
+                     const filterTitle = filterTitleElement ? filterTitleElement.innerText.trim() : null;
 
-                        if (!filterTitle) {
-                           console.warn("Filter has no title, skipping.");
-                           return;
-                        }
+                     if (!filterTitle) {
+                        console.warn("Filter has no title, skipping.");
+                        return;
+                     }
 
-                        const mutateElement = filter.querySelector(".mutate-type");
-                        const dataId = mutateElement ? mutateElement.getAttribute("data-id") : null;
-                        const dataType = mutateElement ? mutateElement.getAttribute("data-type") : null;
-                        // 숫자 입력 필드 처리 (최소값/최대값)
-                        const minInput = filter.querySelector('.form-control.minmax[placeholder="최소"]');
-                        const maxInput = filter.querySelector('.form-control.minmax[placeholder="최대"]');
-                        const minValue = minInput
-                           ? parseInt(minInput.value.trim(), 10)
-                           : null;
-                        const maxValue = maxInput
-                           ? parseInt(maxInput.value.trim(), 10)
-                           : null;
+                     const mutateElement = filter.querySelector(".mutate-type");
+                     const dataId = mutateElement ? mutateElement.getAttribute("data-id") : null;
+                     const dataType = mutateElement ? mutateElement.getAttribute("data-type") : null;
+                     // 숫자 입력 필드 처리 (최소값/최대값)
+                     const minInput = filter.querySelector('.form-control.minmax[placeholder="최소"]');
+                     const maxInput = filter.querySelector('.form-control.minmax[placeholder="최대"]');
+                     const minValue = minInput
+                        ? parseInt(minInput.value.trim(), 10)
+                        : null;
+                     const maxValue = maxInput
+                        ? parseInt(maxInput.value.trim(), 10)
+                        : null;
 
-                        if (dataId && dataType) {
-                           // 능력치 필터(stats) 처리 - 중복 확인 추가
-                           const toggleButton = filter.querySelector(".toggle-btn");
-                           if (!toggleButton.classList.contains("off")) {
-                              const existingFilter = itemData.query.stats[0].filters.find(
-                                 (stat) => stat.id === dataId && stat.type === dataType
-                              );
-                              
-                              if (!existingFilter) {
-                                 const statFilter = {
-                                    id: dataId,
-                                    value: { min: minValue, max: maxValue },
-                                    disabled: false,
-                                    type: dataType,
-                                 };
-                                 itemData.query.stats[0].filters.push(statFilter);
-                              }
-                           } else {
-                              return;
-                           }
-                        } else {
-                           // 일반 필터 처리: filters.json과 매칭
-                           if (!filtersJsonData || !filtersJsonData.result) {
-                              console.warn("filters.json is not loaded or invalid.");
-                              return;
-                           }
-
-                           const matchingGroup = filtersJsonData.result.find((group) =>
-                              group.filters.some((f) => f.text === filterTitle)
+                     if (dataId && dataType) {
+                        // 능력치 필터(stats) 처리 - 중복 확인 추가
+                        const toggleButton = filter.querySelector(".toggle-btn");
+                        if (!toggleButton.classList.contains("off")) {
+                           const existingFilter = itemData.query.stats[0].filters.find(
+                              (stat) => stat.id === dataId && stat.type === dataType
                            );
 
-                           if (matchingGroup) {
-                              const matchingFilter = matchingGroup.filters.find((f) => f.text === filterTitle);
+                           if (!existingFilter) {
+                              const statFilter = {
+                                 id: dataId,
+                                 value: { min: minValue, max: maxValue },
+                                 disabled: false,
+                                 type: dataType,
+                              };
+                              itemData.query.stats[0].filters.push(statFilter);
+                           }
+                        } else {
+                           return;
+                        }
+                     } else {
+                        // 일반 필터 처리: filters.json과 매칭
+                        if (!filtersJsonData || !filtersJsonData.result) {
+                           console.warn("filters.json is not loaded or invalid.");
+                           return;
+                        }
 
-                              if (matchingFilter) {
-                                 const groupId = matchingGroup.id;
+                        const matchingGroup = filtersJsonData.result.find((group) =>
+                           group.filters.some((f) => f.text === filterTitle)
+                        );
 
-                                 // multiselect__input 값 가져오기
-                                 const multiselectInput = filter.querySelector(".multiselect__input");
-                                 const inputValue = multiselectInput ? multiselectInput.value.trim() : null;
+                        if (matchingGroup) {
+                           const matchingFilter = matchingGroup.filters.find((f) => f.text === filterTitle);
 
-                                 if (inputValue) {
-                                    // filters.json의 option 목록에서 한글 text로 매칭된 영어 id 가져오기
-                                    const matchingOption = matchingFilter.option?.options.find(
-                                       (opt) => opt.text === inputValue
-                                    );
+                           if (matchingFilter) {
+                              const groupId = matchingGroup.id;
 
-                                    if (matchingOption) {
-                                       // itemData에 값 추가
-                                       if (itemData.query.filters[groupId]) {
-                                          itemData.query.filters[groupId].filters[matchingFilter.id] = {
-                                             option: matchingOption.id, // 영어 ID 저장
-                                          };
-                                       }
-                                    } else {
-                                       console.warn(
-                                          `No matching option found for input value: '${inputValue}' in filter: '${filterTitle}'.`
-                                       );
+                              // multiselect__input 값 가져오기
+                              const multiselectInput = filter.querySelector(".multiselect__input");
+                              const inputValue = multiselectInput ? multiselectInput.value.trim() : null;
+
+                              if (inputValue) {
+                                 // filters.json의 option 목록에서 한글 text로 매칭된 영어 id 가져오기
+                                 const matchingOption = matchingFilter.option?.options.find(
+                                    (opt) => opt.text === inputValue
+                                 );
+
+                                 if (matchingOption) {
+                                    // itemData에 값 추가
+                                    if (itemData.query.filters[groupId]) {
+                                       itemData.query.filters[groupId].filters[matchingFilter.id] = {
+                                          option: matchingOption.id, // 영어 ID 저장
+                                       };
                                     }
                                  } else {
-                                    if (minValue !== null || maxValue !== null) {
-                                       // itemData에 값 추가
-                                       if (itemData.query.filters[groupId]) {
-                                          itemData.query.filters[groupId].filters[matchingFilter.id] = {
-                                             min: minValue,
-                                             max: maxValue,
-                                          };
-                                       }
-                                    } else {
-                                       console.warn(
-                                          `No valid input (multiselect or min/max) found for filter: '${filterTitle}'.`
-                                       );
+                                    console.warn(
+                                       `No matching option found for input value: '${inputValue}' in filter: '${filterTitle}'.`
+                                    );
+                                 }
+                              } else {
+                                 if (minValue !== null || maxValue !== null) {
+                                    // itemData에 값 추가
+                                    if (itemData.query.filters[groupId]) {
+                                       itemData.query.filters[groupId].filters[matchingFilter.id] = {
+                                          min: minValue,
+                                          max: maxValue,
+                                       };
                                     }
+                                 } else {
+                                    console.warn(
+                                       `No valid input (multiselect or min/max) found for filter: '${filterTitle}'.`
+                                    );
                                  }
                               }
                            }
                         }
-                     });
-                  }
-               });
+                     }
+                  });
+               }
+            });
 
-               const cleanedData = removeNullValues(itemData);
-               moveSiteOrBridge(JSON.stringify(cleanedData));
-               //console.log("After Cleaning:", JSON.stringify(cleanedData, null, 2));
+            const cleanedData = removeNullValues(itemData);
+            moveSiteOrBridge(JSON.stringify(cleanedData));
+         });
+      }
+
+      function moveSiteOrBridge(itemData) {
+         const urlParams = new URLSearchParams(window.location.search);
+         const isWebView = urlParams.get('isWebView') === 'true';
+         if (isWebView) {
+            sendToNative("search", JSON.stringify(cleanedData));
+         } else {
+            // 일반 브라우저
+            const encodedData = encodeURIComponent(itemData);
+            const targetUrl = `https://www.pathofexile.com/trade2/search/poe2/Standard?q=${encodedData}`;
+            window.open(targetUrl, "_blank");
+         }
+      }
+
+      function showLoading() {
+         document.getElementById('loadingOverlay').classList.add('show');
+      }
+
+      function hideLoading() {
+         document.getElementById('loadingOverlay').classList.remove('show');
+      }
+
+      function sendToNative(type, payload) {
+         const message = {
+            type: type,
+            payload: payload
+         };
+
+         // 로딩 표시
+         showLoading();
+
+         // 메시지 전송
+         window.chrome.webview.postMessage(JSON.stringify(message));
+      }
+
+      window.chrome.webview.addEventListener('message', (event) => {
+         const response = JSON.parse(event.data);
+
+         // 응답 데이터를 처리
+         console.log("Response from native:", response);
+
+         // 로딩 숨기기
+         hideLoading();
+      });
+
+      function removeNullValues(obj, depth = 0) {
+         const padding = " ".repeat(depth * 2); // 디버깅용 들여쓰기
+         if (Array.isArray(obj)) {
+            // 배열 처리
+            const cleanedArray = obj
+               .map((item) => removeNullValues(item, depth + 1)) // 재귀적으로 처리
+               .filter((item) => item !== null && item !== undefined && !Number.isNaN(item));
+            return cleanedArray.length > 0 ? cleanedArray : null; // 빈 배열은 null로 반환
+         } else if (obj && typeof obj === "object") {
+            // 객체 처리
+            const cleanedObject = Object.entries(obj)
+               .filter(([_, value]) => value !== null && value !== undefined && !Number.isNaN(value)) // null, undefined, NaN 제거
+               .reduce((acc, [key, value]) => {
+                  const cleanedValue = removeNullValues(value, depth + 1); // 재귀적으로 처리
+                  if (cleanedValue !== null && cleanedValue !== undefined) {
+                     acc[key] = cleanedValue; // 유효한 값만 추가
+                  }
+                  return acc;
+               }, {});
+            return Object.keys(cleanedObject).length > 0 ? cleanedObject : null; // 빈 객체는 null로 반환
+         }
+
+         // 기본 값 반환
+         if (Number.isNaN(obj)) {
+            return null; // NaN 제거
+         }
+         return obj;
+      }
+
+      function setStats() {
+         const targetFilter = findTargetFilter();
+         if (targetFilter) {
+            // 초기 데이터 렌더링
+            updateMultiselectContent(targetFilter, statsJson);
+
+            // 검색 필터링 이벤트 추가
+            addSearchFilter(targetFilter, statsJson);
+         } else {
+            console.warn("'능력치 필터 추가'를 포함하는 filter-select를 찾을 수 없습니다.");
+         }
+
+         // "능력치 필터 추가"를 포함한 filter-select 찾기
+         function findTargetFilter() {
+            const allFilterSelects = document.querySelectorAll(".filter-select");
+            for (const filterSelect of allFilterSelects) {
+               const input = filterSelect.querySelector(".multiselect__input");
+               if (input && input.placeholder === "+ 능력치 필터 추가") {
+                  return filterSelect.querySelector(".multiselect__content");
+               }
+            }
+            return null;
+         }
+
+         function isDuplicateFilter(parentContainer, dataId, selectedText) {
+            const existingFilters = parentContainer.querySelectorAll(".filter.full-span .filter-title");
+            return Array.from(existingFilters).some(filter => {
+               const existingDataId = filter.querySelector(".mutate-type")?.getAttribute("data-id");
+               const existingText = filter.querySelector("span")?.innerText;
+               return existingDataId === dataId && existingText === selectedText;
             });
          }
 
-         function moveSiteOrBridge(itemData) {
-            if (navigator.userAgent.includes("MyAppWebView")) {
-               setupBridge(itemData);
-            } else {
-               const encodedData = encodeURIComponent(itemData);
-               const targetUrl = `https://www.pathofexile.com/trade2/search/poe2/Standard?q=${encodedData}`;
-               window.open(targetUrl, "_blank"); // 새 탭에서 열기
-            }
-         }
+         function addFilterAbovePadded(entry, selectedText) {
+            // 선택된 옵션의 data-id와 data-type 가져오기
+            const parentContainer = document.querySelector(
+               "#trade > div.top > div > div.search-bar.search-advanced > div.search-advanced-items > div.search-advanced-pane.blue > div:nth-child(7) > div.filter-group-body"
+            );
 
-         function removeNullValues(obj, depth = 0) {
-            const padding = " ".repeat(depth * 2); // 디버깅용 들여쓰기
-            if (Array.isArray(obj)) {
-               // 배열 처리
-               const cleanedArray = obj
-                  .map((item) => removeNullValues(item, depth + 1)) // 재귀적으로 처리
-                  .filter((item) => item !== null && item !== undefined && !Number.isNaN(item));
-               return cleanedArray.length > 0 ? cleanedArray : null; // 빈 배열은 null로 반환
-            } else if (obj && typeof obj === "object") {
-               // 객체 처리
-               const cleanedObject = Object.entries(obj)
-                  .filter(([_, value]) => value !== null && value !== undefined && !Number.isNaN(value)) // null, undefined, NaN 제거
-                  .reduce((acc, [key, value]) => {
-                     const cleanedValue = removeNullValues(value, depth + 1); // 재귀적으로 처리
-                     if (cleanedValue !== null && cleanedValue !== undefined) {
-                        acc[key] = cleanedValue; // 유효한 값만 추가
-                     }
-                     return acc;
-                  }, {});
-               return Object.keys(cleanedObject).length > 0 ? cleanedObject : null; // 빈 객체는 null로 반환
-            }
-
-            // 기본 값 반환
-            if (Number.isNaN(obj)) {
-               return null; // NaN 제거
-            }
-            return obj;
-         }
-
-         function setStats() {
-            const targetFilter = findTargetFilter();
-            if (targetFilter) {
-               // 초기 데이터 렌더링
-               updateMultiselectContent(targetFilter, statsJson);
-
-               // 검색 필터링 이벤트 추가
-               addSearchFilter(targetFilter, statsJson);
-            } else {
-               console.warn("'능력치 필터 추가'를 포함하는 filter-select를 찾을 수 없습니다.");
-            }
-
-            // "능력치 필터 추가"를 포함한 filter-select 찾기
-            function findTargetFilter() {
-               const allFilterSelects = document.querySelectorAll(".filter-select");
-               for (const filterSelect of allFilterSelects) {
-                  const input = filterSelect.querySelector(".multiselect__input");
-                  if (input && input.placeholder === "+ 능력치 필터 추가") {
-                     return filterSelect.querySelector(".multiselect__content");
-                  }
-               }
-               return null;
-            }
-
-            function isDuplicateFilter(parentContainer, dataId, selectedText) {
-               const existingFilters = parentContainer.querySelectorAll(".filter.full-span .filter-title");
-               return Array.from(existingFilters).some(filter => {
-                  const existingDataId = filter.querySelector(".mutate-type")?.getAttribute("data-id");
-                  const existingText = filter.querySelector("span")?.innerText;
-                  return existingDataId === dataId && existingText === selectedText;
-               });
-            }
-
-            function addFilterAbovePadded(entry, selectedText) {
-               // 선택된 옵션의 data-id와 data-type 가져오기
-               const parentContainer = document.querySelector(
-                  "#trade > div.top > div > div.search-bar.search-advanced > div.search-advanced-items > div.search-advanced-pane.blue > div:nth-child(7) > div.filter-group-body"
-               );
-
-               const dataId = entry.id;
-               const dataType = entry.type;
+            const dataId = entry.id;
+            const dataType = entry.type;
 
 
-               // 새로운 필터 생성
-               const newFilter = document.createElement("div");
-               newFilter.className = "filter full-span";
-               newFilter.innerHTML = `
+            // 새로운 필터 생성
+            const newFilter = document.createElement("div");
+            newFilter.className = "filter full-span";
+            newFilter.innerHTML = `
         <span class="input-group-btn">
             <button class="btn toggle-btn"></button>
         </span>
@@ -5720,289 +5801,290 @@
         </span>
     `;
 
-               // 필터 제거 버튼 이벤트 추가
-               newFilter.querySelector(".remove-btn").addEventListener("click", function () {
-                  newFilter.remove();
-               });
+            // 필터 제거 버튼 이벤트 추가
+            newFilter.querySelector(".remove-btn").addEventListener("click", function () {
+               newFilter.remove();
+            });
 
-               var toggleBtn = newFilter.querySelector(".toggle-btn");
-               toggleBtn.addEventListener("click", function () {
-                  toggleBtn.classList.toggle("off");
-               });
+            var toggleBtn = newFilter.querySelector(".toggle-btn");
+            toggleBtn.addEventListener("click", function () {
+               toggleBtn.classList.toggle("off");
+            });
 
-               // filter-padded 위에 필터 추가
-               const filterPadded = parentContainer.querySelector(".filter.filter-padded");
-               if (filterPadded) {
-                  parentContainer.insertBefore(newFilter, filterPadded);
-               } else {
-                  parentContainer.appendChild(newFilter);
-               }
+            // filter-padded 위에 필터 추가
+            const filterPadded = parentContainer.querySelector(".filter.filter-padded");
+            if (filterPadded) {
+               parentContainer.insertBefore(newFilter, filterPadded);
+            } else {
+               parentContainer.appendChild(newFilter);
             }
+         }
 
-            // multiselect__content 업데이트
-            function updateMultiselectContent(multiselectContent, groups, query = "") {
-               if (!multiselectContent) {
-                  console.error("multiselect__content 요소를 찾을 수 없습니다.");
-                  return;
-               }
-               // 기존 내용 제거
-               multiselectContent.innerHTML = "";
+         // multiselect__content 업데이트
+         function updateMultiselectContent(multiselectContent, groups, query = "") {
+            if (!multiselectContent) {
+               console.error("multiselect__content 요소를 찾을 수 없습니다.");
+               return;
+            }
+            // 기존 내용 제거
+            multiselectContent.innerHTML = "";
 
-               // 그룹별 필터 추가
-               groups.forEach((group) => {
-                  // 그룹 레이블 추가
-                  const groupLabel = document.createElement("li");
-                  groupLabel.className = "multiselect__group-label";
-                  groupLabel.style.background = "white";
-                  groupLabel.style.color = "black";
-                  groupLabel.textContent = group.label;
+            // 그룹별 필터 추가
+            groups.forEach((group) => {
+               // 그룹 레이블 추가
+               const groupLabel = document.createElement("li");
+               groupLabel.className = "multiselect__group-label";
+               groupLabel.style.background = "white";
+               groupLabel.style.color = "black";
+               groupLabel.textContent = group.label;
 
-                  multiselectContent.appendChild(groupLabel);
+               multiselectContent.appendChild(groupLabel);
 
-                  // 그룹 내 항목 추가
-                  group.entries.forEach((entry) => {
-                     const listItem = document.createElement("li");
-                     listItem.className = "multiselect__element";
+               // 그룹 내 항목 추가
+               group.entries.forEach((entry) => {
+                  const listItem = document.createElement("li");
+                  listItem.className = "multiselect__element";
 
-                     // 검색어 강조 처리
-                     const highlightedText = highlightQuery(entry.text, query);
+                  // 검색어 강조 처리
+                  const highlightedText = highlightQuery(entry.text, query);
 
-                     listItem.innerHTML = `
+                  listItem.innerHTML = `
                     <span class="multiselect__option" data-id="${entry.id}" data-type="${entry.type}">
                         <span>${highlightedText}</span>
                     </span>
                 `;
 
-                     // 옵션 클릭 시 이벤트 추가 (선택된 옵션 로직)
-                     listItem.querySelector(".multiselect__option").addEventListener("click", function () {
-                        addFilterAbovePadded(entry, entry.text);
+                  // 옵션 클릭 시 이벤트 추가 (선택된 옵션 로직)
+                  listItem.querySelector(".multiselect__option").addEventListener("click", function () {
+                     addFilterAbovePadded(entry, entry.text);
 
-                        // 입력 필드 초기화
-                        clearInputField();
-                     });
-
-                     multiselectContent.appendChild(listItem);
+                     // 입력 필드 초기화
+                     clearInputField();
                   });
+
+                  multiselectContent.appendChild(listItem);
                });
+            });
+         }
+
+         // 검색 필터링 이벤트 추가
+         function addSearchFilter(multiselectContent, originalData) {
+            const inputField = document.querySelector('.multiselect__input[placeholder="+ 능력치 필터 추가"]');
+            if (!inputField) {
+               console.error("필터 입력 필드를 찾을 수 없습니다.");
+               return;
             }
 
-            // 검색 필터링 이벤트 추가
-            function addSearchFilter(multiselectContent, originalData) {
-               const inputField = document.querySelector('.multiselect__input[placeholder="+ 능력치 필터 추가"]');
-               if (!inputField) {
-                  console.error("필터 입력 필드를 찾을 수 없습니다.");
+            inputField.addEventListener("input", function () {
+               const query = inputField.value.trim().toLowerCase();
+
+               // 검색 필터링
+               const filteredGroups = originalData
+                  .map((group) => {
+                     const filteredEntries = group.entries.filter((entry) => entry.text.toLowerCase().includes(query) || entry.id.toLowerCase().includes(query));
+
+                     return filteredEntries.length > 0 ? { ...group, entries: filteredEntries } : null;
+                  })
+                  .filter((group) => group !== null);
+
+               // 필터링된 결과로 업데이트
+               updateMultiselectContent(multiselectContent, filteredGroups, query);
+            });
+         }
+
+         // 검색어 강조 표시
+         function highlightQuery(text, query) {
+            if (!query) return text; // 검색어가 없으면 강조하지 않음
+
+            // 검색어를 대소문자 구분 없이 강조
+            const regex = new RegExp(`(${query})`, "gi");
+            return text.replace(regex, "<mark style='background: yellow; color: black; font-weight: bold;'>$1</mark>");
+         }
+
+         // 입력 필드 초기화
+         function clearInputField() {
+            const inputField = document.querySelector('.multiselect__input[placeholder="+ 능력치 필터 추가"]');
+            if (inputField) {
+               inputField.value = "";
+            }
+         }
+      }
+
+      function setToggleBtn() {
+         const toggleButtons = document.querySelectorAll(".btn.toggle-btn");
+
+         if (toggleButtons.length === 0) {
+            console.error("No toggle buttons found!");
+            return;
+         }
+
+         // 모든 버튼에 클릭 이벤트 추가
+         toggleButtons.forEach((toggleBtn) => {
+            toggleBtn.addEventListener("click", () => {
+               // `off` 클래스를 토글
+               toggleBtn.classList.toggle("off");
+
+               // 버튼의 부모 .filter-group 안에서 .filter-group-body 찾기
+               const filterGroupBody = toggleBtn.closest(".filter-group").querySelector(".filter-group-body");
+
+               if (!filterGroupBody) {
+                  console.error("No filter-group-body found for this button!");
                   return;
                }
 
-               inputField.addEventListener("input", function () {
-                  const query = inputField.value.trim().toLowerCase();
-
-                  // 검색 필터링
-                  const filteredGroups = originalData
-                     .map((group) => {
-                        const filteredEntries = group.entries.filter((entry) => entry.text.toLowerCase().includes(query) || entry.id.toLowerCase().includes(query));
-
-                        return filteredEntries.length > 0 ? { ...group, entries: filteredEntries } : null;
-                     })
-                     .filter((group) => group !== null);
-
-                  // 필터링된 결과로 업데이트
-                  updateMultiselectContent(multiselectContent, filteredGroups, query);
-               });
-            }
-
-            // 검색어 강조 표시
-            function highlightQuery(text, query) {
-               if (!query) return text; // 검색어가 없으면 강조하지 않음
-
-               // 검색어를 대소문자 구분 없이 강조
-               const regex = new RegExp(`(${query})`, "gi");
-               return text.replace(regex, "<mark style='background: yellow; color: black; font-weight: bold;'>$1</mark>");
-            }
-
-            // 입력 필드 초기화
-            function clearInputField() {
-               const inputField = document.querySelector('.multiselect__input[placeholder="+ 능력치 필터 추가"]');
-               if (inputField) {
-                  inputField.value = "";
-               }
-            }
-         }
-
-         function setToggleBtn() {
-            const toggleButtons = document.querySelectorAll(".btn.toggle-btn");
-
-            if (toggleButtons.length === 0) {
-               console.error("No toggle buttons found!");
-               return;
-            }
-
-            // 모든 버튼에 클릭 이벤트 추가
-            toggleButtons.forEach((toggleBtn) => {
-               toggleBtn.addEventListener("click", () => {
-                  // `off` 클래스를 토글
-                  toggleBtn.classList.toggle("off");
-
-                  // 버튼의 부모 .filter-group 안에서 .filter-group-body 찾기
-                  const filterGroupBody = toggleBtn.closest(".filter-group").querySelector(".filter-group-body");
-
-                  if (!filterGroupBody) {
-                     console.error("No filter-group-body found for this button!");
-                     return;
-                  }
-
-                  // `off` 상태에 따라 .filter-group-body 표시/숨기기
-                  if (toggleBtn.classList.contains("off")) {
-                     filterGroupBody.style.display = "none"; // 숨기기
-                  } else {
-                     filterGroupBody.style.display = ""; // 표시 (기본값)
-                  }
-               });
-            });
-         }
-
-         function setRemoveBtn() {
-            const removeButtons = document.querySelectorAll(".btn.remove-btn");
-
-            if (removeButtons.length === 0) {
-               console.error("No remove buttons found!");
-               return;
-            }
-
-            // 모든 remove-btn에 클릭 이벤트 추가
-            removeButtons.forEach((removeBtn) => {
-               removeBtn.addEventListener("click", () => {
-                  // 버튼의 가장 가까운 filter-group 찾기
-                  const filterGroup = removeBtn.closest(".filter-group");
-
-                  if (!filterGroup) {
-                     console.error("No filter-group found for this button!");
-                     return;
-                  }
-
-                  // filter-group-body 찾기
-                  const filterGroupBody = filterGroup.querySelector(".filter-group-body");
-
-                  if (!filterGroupBody) {
-                     console.error("No filter-group-body found in this filter-group!");
-                     return;
-                  }
-
-                  // filter-group-body 안에서 .filter.filter-padded를 제외한 모든 .filter 삭제
-                  const filtersToRemove = filterGroupBody.querySelectorAll(".filter:not(.filter-padded)");
-
-                  filtersToRemove.forEach((filter) => {
-                     filter.remove();
-                  });
-               });
-            });
-         }
-
-         function setItemNameFilter() {
-            if (!itemsKoJson || !itemsEnJson) {
-               console.warn("Data not found in cookies. Loading data from server...");
-               loadData().then(() => {
-                  console.log("Data loaded. Please reload or reinitialize the search.");
-               });
-            }
-
-            const searchInput = document.querySelector(".multiselect__input[placeholder='아이템 검색...']");
-            const contentWrapper = document.querySelector(
-               "#trade > div.top > div > div:nth-child(1) > div.search-left > div > div.multiselect__content-wrapper"
-            );
-
-            if (!searchInput || !contentWrapper) {
-               console.error("Search input or content wrapper not found!");
-               return;
-            }
-
-            // 검색 창 클릭 시 드롭다운 표시
-            searchInput.addEventListener("focus", function () {
-               contentWrapper.style.display = "block"; // 드롭다운 표시
-            });
-
-            // 드롭다운 외부 클릭 시 숨기기
-            document.addEventListener("click", function (event) {
-               if (!contentWrapper.contains(event.target) && event.target !== searchInput) {
-                  contentWrapper.style.display = "none"; // 드롭다운 숨김
-               }
-            });
-
-            // 드롭다운 항목 클릭 시 값 업데이트
-            contentWrapper.addEventListener("click", function (event) {
-               const selectedItem = event.target.closest(".multiselect__option");
-
-               if (selectedItem) {
-                  const selectedText = selectedItem.innerText.trim();
-                  searchInput.value = selectedText; // 검색 입력값 업데이트
-
-                  // 드롭다운 숨기기
-                  contentWrapper.style.display = "none";
-               }
-            });
-
-            function updateDropdown(filter) {
-               // 데이터 유효성 확인
-               if (!itemsKoJson || typeof itemsKoJson !== "object") {
-                  console.error("itemsKoJson is not loaded or invalid.");
-                  return;
-               }
-
-               // 검색어가 없으면 전체 데이터 표시
-               const filteredItems =
-                  filter.trim() === ""
-                     ? Object.keys(itemsKoJson) // 전체 데이터
-                     : Object.keys(itemsKoJson).filter((key) =>
-                        key.toLowerCase().includes(filter.toLowerCase()) // 대소문자 무시 비교
-                     );
-
-               // 드롭다운 초기화
-               contentWrapper.innerHTML = "";
-
-               if (filteredItems.length > 0) {
-                  filteredItems.forEach((item) => {
-                     const optionElement = document.createElement("div");
-                     optionElement.className = "multiselect__option";
-                     optionElement.innerText = item; // 한글 이름 표시
-                     optionElement.innerHTML = highlightQuery(item, filter); // 검색어 강조 표시
-                     contentWrapper.appendChild(optionElement);
-                  });
+               // `off` 상태에 따라 .filter-group-body 표시/숨기기
+               if (toggleBtn.classList.contains("off")) {
+                  filterGroupBody.style.display = "none"; // 숨기기
                } else {
-                  const noResultElement = document.createElement("div");
-                  noResultElement.className = "multiselect__option";
-                  noResultElement.innerText = "결과가 없습니다."; // 필터링 결과 없음
-                  contentWrapper.appendChild(noResultElement);
+                  filterGroupBody.style.display = ""; // 표시 (기본값)
                }
-            }
-
-            // 검색 입력값 변경 시 필터링
-            searchInput.addEventListener("input", function () {
-               const searchValue = searchInput.value.trim();
-               updateDropdown(searchValue); // 필터링
             });
+         });
+      }
 
-            function highlightQuery(text, query) {
-               if (!query) return text; // 검색어가 없으면 강조하지 않음
+      function setRemoveBtn() {
+         const removeButtons = document.querySelectorAll(".btn.remove-btn");
 
-               // 검색어를 대소문자 구분 없이 강조
-               const regex = new RegExp(`(${query})`, "gi");
-               return text.replace(regex, "<mark style='background: yellow; color: black; font-weight: bold;'>$1</mark>");
-            }
-
+         if (removeButtons.length === 0) {
+            console.error("No remove buttons found!");
+            return;
          }
 
-      </script>
+         // 모든 remove-btn에 클릭 이벤트 추가
+         removeButtons.forEach((removeBtn) => {
+            removeBtn.addEventListener("click", () => {
+               // 버튼의 가장 가까운 filter-group 찾기
+               const filterGroup = removeBtn.closest(".filter-group");
 
-<script async type="application/javascript" src="https://a.pemsrv.com/ad-provider.js"></script>
-<ins class="eas6a97888e35" data-zoneid="5508734"></ins>
-<script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
-<script type="application/javascript">
-   document.addEventListener('creativeDisplayed-5508734', console.log, false);
-</script>
+               if (!filterGroup) {
+                  console.error("No filter-group found for this button!");
+                  return;
+               }
 
-<script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
-<ins class="eas6a97888e31" data-zoneid="5509236"></ins> 
-<script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+               // filter-group-body 찾기
+               const filterGroupBody = filterGroup.querySelector(".filter-group-body");
+
+               if (!filterGroupBody) {
+                  console.error("No filter-group-body found in this filter-group!");
+                  return;
+               }
+
+               // filter-group-body 안에서 .filter.filter-padded를 제외한 모든 .filter 삭제
+               const filtersToRemove = filterGroupBody.querySelectorAll(".filter:not(.filter-padded)");
+
+               filtersToRemove.forEach((filter) => {
+                  filter.remove();
+               });
+            });
+         });
+      }
+
+      function setItemNameFilter() {
+         if (!itemsKoJson || !itemsEnJson) {
+            console.warn("Data not found in cookies. Loading data from server...");
+            loadData().then(() => {
+               console.log("Data loaded. Please reload or reinitialize the search.");
+            });
+         }
+
+         const searchInput = document.querySelector(".multiselect__input[placeholder='아이템 검색...']");
+         const contentWrapper = document.querySelector(
+            "#trade > div.top > div > div:nth-child(1) > div.search-left > div > div.multiselect__content-wrapper"
+         );
+
+         if (!searchInput || !contentWrapper) {
+            console.error("Search input or content wrapper not found!");
+            return;
+         }
+
+         // 검색 창 클릭 시 드롭다운 표시
+         searchInput.addEventListener("focus", function () {
+            contentWrapper.style.display = "block"; // 드롭다운 표시
+         });
+
+         // 드롭다운 외부 클릭 시 숨기기
+         document.addEventListener("click", function (event) {
+            if (!contentWrapper.contains(event.target) && event.target !== searchInput) {
+               contentWrapper.style.display = "none"; // 드롭다운 숨김
+            }
+         });
+
+         // 드롭다운 항목 클릭 시 값 업데이트
+         contentWrapper.addEventListener("click", function (event) {
+            const selectedItem = event.target.closest(".multiselect__option");
+
+            if (selectedItem) {
+               const selectedText = selectedItem.innerText.trim();
+               searchInput.value = selectedText; // 검색 입력값 업데이트
+
+               // 드롭다운 숨기기
+               contentWrapper.style.display = "none";
+            }
+         });
+
+         function updateDropdown(filter) {
+            // 데이터 유효성 확인
+            if (!itemsKoJson || typeof itemsKoJson !== "object") {
+               console.error("itemsKoJson is not loaded or invalid.");
+               return;
+            }
+
+            // 검색어가 없으면 전체 데이터 표시
+            const filteredItems =
+               filter.trim() === ""
+                  ? Object.keys(itemsKoJson) // 전체 데이터
+                  : Object.keys(itemsKoJson).filter((key) =>
+                     key.toLowerCase().includes(filter.toLowerCase()) // 대소문자 무시 비교
+                  );
+
+            // 드롭다운 초기화
+            contentWrapper.innerHTML = "";
+
+            if (filteredItems.length > 0) {
+               filteredItems.forEach((item) => {
+                  const optionElement = document.createElement("div");
+                  optionElement.className = "multiselect__option";
+                  optionElement.innerText = item; // 한글 이름 표시
+                  optionElement.innerHTML = highlightQuery(item, filter); // 검색어 강조 표시
+                  contentWrapper.appendChild(optionElement);
+               });
+            } else {
+               const noResultElement = document.createElement("div");
+               noResultElement.className = "multiselect__option";
+               noResultElement.innerText = "결과가 없습니다."; // 필터링 결과 없음
+               contentWrapper.appendChild(noResultElement);
+            }
+         }
+
+         // 검색 입력값 변경 시 필터링
+         searchInput.addEventListener("input", function () {
+            const searchValue = searchInput.value.trim();
+            updateDropdown(searchValue); // 필터링
+         });
+
+         function highlightQuery(text, query) {
+            if (!query) return text; // 검색어가 없으면 강조하지 않음
+
+            // 검색어를 대소문자 구분 없이 강조
+            const regex = new RegExp(`(${query})`, "gi");
+            return text.replace(regex, "<mark style='background: yellow; color: black; font-weight: bold;'>$1</mark>");
+         }
+
+      }
+
+   </script>
+
+   <script async type="application/javascript" src="https://a.pemsrv.com/ad-provider.js"></script>
+   <ins class="eas6a97888e35" data-zoneid="5508734"></ins>
+   <script>(AdProvider = window.AdProvider || []).push({ "serve": {} });</script>
+   <script type="application/javascript">
+      document.addEventListener('creativeDisplayed-5508734', console.log, false);
+   </script>
+
+   <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+   <ins class="eas6a97888e31" data-zoneid="5509236"></ins>
+   <script>(AdProvider = window.AdProvider || []).push({ "serve": {} });</script>
 
 </body>
+
 </html>
