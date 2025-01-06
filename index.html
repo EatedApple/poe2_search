@@ -5697,16 +5697,6 @@
          window.chrome.webview.postMessage(JSON.stringify(message));
       }
 
-      window.chrome.webview.addEventListener('message', (event) => {
-         const response = JSON.parse(event.data);
-
-         // 응답 데이터를 처리
-         console.log("Response from native:", response);
-
-         // 로딩 숨기기
-         hideLoading();
-      });
-
       function removeNullValues(obj, depth = 0) {
          const padding = " ".repeat(depth * 2); // 디버깅용 들여쓰기
          if (Array.isArray(obj)) {
