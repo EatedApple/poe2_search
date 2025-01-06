@@ -5663,13 +5663,17 @@
          });
       }
 
+      (function () {
+         const href = window.location.href;
+         const queryString = href.includes('?') ? href.split('?')[1] : '';
+         const params = new URLSearchParams(queryString);
+         window.isWebView = params.get('isWebview') === 'true';
+      })();
+
       function moveSiteOrBridge(itemData) {
-         const urlParams = new URLSearchParams(window.location.search);
-         const isWebView = urlParams.get('isWebView') === 'true';
-         if (isWebView) {
-            sendToNative("search", JSON.stringify(cleanedData));
+         if (window.isWebView) {
+            window.chrome.webview.postMessage(JSON.stringify(itemData));
          } else {
-            // 일반 브라우저
             const encodedData = encodeURIComponent(itemData);
             const targetUrl = `https://www.pathofexile.com/trade2/search/poe2/Standard?q=${encodedData}`;
             window.open(targetUrl, "_blank");
