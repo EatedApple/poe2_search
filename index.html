@@ -5363,7 +5363,7 @@
                      </div>
                   </div>
                   <div class="clear"></div>
-                  <div class="results nosort" style="display: none;">
+                  <div class="results" style="display: none;">
                      <!---->
                   </div>
                   <audio src="https://web.poecdn.com/audio/trade/pulse.mp3" preload="auto"></audio>
@@ -5670,7 +5670,7 @@
          if (window.isWebView) {
             showLoading();
             window.chrome.webview.postMessage(
-               JSON.stringify({ action: "fetchInitialIDs", data: JSON.stringify(itemData) })
+               JSON.stringify({ action: "fetchInitialIDs", data: itemData })
             );
          } else {
             const encodedData = encodeURIComponent(itemData);
@@ -5685,11 +5685,6 @@
 
       function hideLoading() {
          document.getElementById('loadingOverlay').classList.remove('show');
-      }
-
-      function setResultData(data) {
-         console.log(data);
-         hideLoading();
       }
 
       function sendToNative(type, payload) {
@@ -6081,41 +6076,76 @@
       let searchID = "";
 
       if (window.chrome && window.chrome.webview) {
-         // WebView2 환경에서 실행
          console.log("WebView2 environment detected.");
-         window.chrome.webview.addEventListener("message", (event) => {
-            const data = JSON.parse(event.data);
 
-            if (data.action === "fetchInitialIDs") {
-               resultIDs = data.resultIDs;
-               totalCount = resultIDs.length;
-               viewTotalCount = data.total;
-               searchID = data.id;
-               //document.getElementById("total-count").innerText = `검색 결과: ${totalCount}개 표시`;
-               fetchMoreData();
-            } else if (data.action === "fetchItems") {
-               renderResults(data);
-               isLoading = false;
-               document.getElementById("loader").style.display = "none";
+         window.chrome.webview.addEventListener("message", (event) => {
+            try {
+               const data = JSON.parse(event.data);
+               console.log("Received data:", data);
+
+               // fetchInitialIDs 처리
+               if (data.action === "fetchInitialIDs") {
+                  resultIDs = data.result;
+                  totalCount = resultIDs.length;
+                  viewTotalCount = data.total;
+                  searchID = data.id;
+
+                  fetchMoreData();
+
+                  // fetchItems 처리
+               } else if (data.action === "fetchItems") {
+                  renderResults(data);
+                  isLoading = false;
+
+                  // 에러 메시지 처리
+               } else if (data.action === "error") {
+                  handleError(data);
+
+                  // 기타 액션 처리
+               } else {
+                  console.warn("Unknown action received:", data.action);
+               }
+            } catch (error) {
+               console.error("Error processing message:", error);
             }
          });
       } else {
          console.error("Not running in a WebView2 environment.");
       }
 
+      // 에러 메시지 처리 함수
+      function handleError(errorData) {
+         hideLoading();
+         console.error("Error received:", errorData);
+
+         const errorMessage = errorData.message || "알 수 없는 에러가 발생했습니다.";
+         const errorCode = errorData.code || "UnknownError";
+
+         // 에러 메시지를 사용자에게 표시 (예: UI 업데이트)
+         const errorElement = document.getElementById("error-display");
+         if (errorElement) {
+            errorElement.innerText = `에러 코드: ${errorCode}\n메시지: ${errorMessage}`;
+            errorElement.style.display = "block";
+         }
+
+         // 필요 시 추가 처리 (예: 로깅 또는 리셋)
+         if (errorCode === "CriticalError") {
+            alert("심각한 오류가 발생했습니다. 페이지를 새로고침하세요.");
+         }
+      }
+
+
       // 데이터 요청
       function fetchMoreData() {
          if (isLoading || currentPage * pageSize >= totalCount) return;
 
          isLoading = true;
-         document.getElementById("loader").style.display = "block";
-
          const start = currentPage * pageSize;
          const end = Math.min(start + pageSize, totalCount);
          const idsToFetch = resultIDs.slice(start, end);
 
          window.chrome.webview.postMessage(
-            JSON.stringify({ action: "fetchItems", ids: idsToFetch, id: searchID })
+            JSON.stringify({ action: "fetchItems", result: idsToFetch, id: searchID })
          );
 
          currentPage++;
@@ -6132,8 +6162,8 @@
       });
 
       function renderResults(data) {
-         const resultContainer = document.getElementById('result');
-
+         const resultContainer = document.querySelector('.results');
+         console.log(data.result);
          data.result.forEach(itemData => {
             // 상위 row 생성
             const row = document.createElement('div');
@@ -6204,6 +6234,7 @@
             // 결과 컨테이너에 row 추가
             resultContainer.appendChild(row);
          });
+         resultContainer.style.display = "block";
       }
 
    </script>
