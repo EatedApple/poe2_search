@@ -5668,6 +5668,7 @@
 
       function moveSiteOrBridge(itemData) {
          if (window.isWebView) {
+            showLoading();
             window.chrome.webview.postMessage(JSON.stringify(itemData));
          } else {
             const encodedData = encodeURIComponent(itemData);
@@ -5682,6 +5683,11 @@
 
       function hideLoading() {
          document.getElementById('loadingOverlay').classList.remove('show');
+      }
+
+      function setResultData(data) {
+         console.log(data);
+         hideLoading();
       }
 
       function sendToNative(type, payload) {
