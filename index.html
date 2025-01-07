@@ -5669,7 +5669,9 @@
       function moveSiteOrBridge(itemData) {
          if (window.isWebView) {
             showLoading();
-            window.chrome.webview.postMessage(JSON.stringify(itemData));
+            window.chrome.webview.postMessage(
+               JSON.stringify({ action: "fetchInitialIDs", data: JSON.stringify(itemData) })
+            );
          } else {
             const encodedData = encodeURIComponent(itemData);
             const targetUrl = `https://www.pathofexile.com/trade2/search/poe2/Standard?q=${encodedData}`;
@@ -6066,6 +6068,142 @@
             return text.replace(regex, "<mark style='background: yellow; color: black; font-weight: bold;'>$1</mark>");
          }
 
+      }
+
+      //============================================================================search result
+
+      let resultIDs = [];
+      let currentPage = 0;
+      const pageSize = 10; // 한 번에 요청할 데이터 수
+      let totalCount = 0;
+      let viewTotalCount = 0;
+      let isLoading = false;
+      let searchID = "";
+
+      if (window.chrome && window.chrome.webview) {
+         // WebView2 환경에서 실행
+         console.log("WebView2 environment detected.");
+         window.chrome.webview.addEventListener("message", (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.action === "fetchInitialIDs") {
+               resultIDs = data.resultIDs;
+               totalCount = resultIDs.length;
+               viewTotalCount = data.total;
+               searchID = data.id;
+               //document.getElementById("total-count").innerText = `검색 결과: ${totalCount}개 표시`;
+               fetchMoreData();
+            } else if (data.action === "fetchItems") {
+               renderResults(data);
+               isLoading = false;
+               document.getElementById("loader").style.display = "none";
+            }
+         });
+      } else {
+         console.error("Not running in a WebView2 environment.");
+      }
+
+      // 데이터 요청
+      function fetchMoreData() {
+         if (isLoading || currentPage * pageSize >= totalCount) return;
+
+         isLoading = true;
+         document.getElementById("loader").style.display = "block";
+
+         const start = currentPage * pageSize;
+         const end = Math.min(start + pageSize, totalCount);
+         const idsToFetch = resultIDs.slice(start, end);
+
+         window.chrome.webview.postMessage(
+            JSON.stringify({ action: "fetchItems", ids: idsToFetch, id: searchID })
+         );
+
+         currentPage++;
+      }
+
+      // 스크롤 이벤트 추가
+      window.addEventListener("scroll", () => {
+         if (
+            window.innerHeight + window.scrollY >= document.body.offsetHeight &&
+            !isLoading
+         ) {
+            fetchMoreData();
+         }
+      });
+
+      function renderResults(data) {
+         const resultContainer = document.getElementById('result');
+
+         data.result.forEach(itemData => {
+            // 상위 row 생성
+            const row = document.createElement('div');
+            row.classList.add('row');
+            row.setAttribute('data-id', itemData.id);
+
+            // 왼쪽 영역
+            const left = document.createElement('div');
+            left.classList.add('left');
+            const refreshBtn = document.createElement('button');
+            refreshBtn.title = '새로 고침';
+            refreshBtn.classList.add('refresh');
+            const iconContainer = document.createElement('div');
+            iconContainer.classList.add('newItemContainer', 'itemRendered', `iW${itemData.item.w}`, `iH${itemData.item.h}`);
+            const icon = document.createElement('img');
+            icon.src = itemData.item.icon;
+            icon.alt = itemData.item.typeLine;
+            iconContainer.appendChild(icon);
+            left.appendChild(refreshBtn);
+            left.appendChild(iconContainer);
+
+            // 가운데 영역
+            const middle = document.createElement('div');
+            middle.classList.add('middle');
+            const itemPopupContainer = document.createElement('div');
+            itemPopupContainer.classList.add('itemPopupContainer', 'newItemPopup', `${itemData.item.rarity.toLowerCase()}Popup`);
+            const itemBoxContent = document.createElement('div');
+            itemBoxContent.classList.add('itemBoxContent');
+            const itemName = document.createElement('div');
+            itemName.classList.add('itemName', 'typeLine');
+            itemName.textContent = itemData.item.typeLine;
+
+            const properties = document.createElement('div');
+            properties.classList.add('content');
+            itemData.item.explicitMods.forEach(mod => {
+               const modLine = document.createElement('div');
+               modLine.classList.add('explicitMod');
+               modLine.textContent = mod;
+               properties.appendChild(modLine);
+            });
+
+            itemBoxContent.appendChild(itemName);
+            itemBoxContent.appendChild(properties);
+            itemPopupContainer.appendChild(itemBoxContent);
+            middle.appendChild(itemPopupContainer);
+
+            // 오른쪽 영역
+            const right = document.createElement('div');
+            right.classList.add('right');
+            const details = document.createElement('div');
+            details.classList.add('details');
+            const price = document.createElement('div');
+            price.classList.add('price');
+            price.innerHTML = `<span class="price-label buyout-price">제시 가격:</span><br> <span>${itemData.listing.price.amount}</span> × <span class="currency-text currency-image"><img src="https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lBZGRNb2RUb01hZ2ljIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/c8ad0ddc84/CurrencyAddModToMagic.png" alt="${itemData.listing.price.currency}" title="${itemData.listing.price.currency}"><span>${itemData.listing.price.currency}</span></span>`;
+            const sellerInfo = document.createElement('div');
+            sellerInfo.classList.add('info', 's');
+            sellerInfo.innerHTML = `<span class="profile-link"><a href="/account/view-profile/${itemData.listing.account.name}" target="_blank">${itemData.listing.account.name}</a></span>`;
+
+            details.appendChild(price);
+            details.appendChild(sellerInfo);
+            right.appendChild(details);
+
+            // row에 영역 추가
+            row.appendChild(left);
+            row.appendChild(middle);
+            row.appendChild(right);
+
+            // 결과 컨테이너에 row 추가
+            resultContainer.appendChild(row);
+         });
       }
 
    </script>
