@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>POE 우상 최적화 도구</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        /* 테일윈드 CSS 대신 기본 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .select-container {
+            margin-bottom: 20px;
+        }
+
+        .select-container select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .option-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+        }
+
+        .cell {
+            height: 40px;
+            border: 1px solid #ddd;
+        }
+
+        .available-cell {
+            background-color: #e6f3ff;
+            cursor: pointer;
+        }
+
+        .gray-cell {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+        }
+
+        .selected-cell {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>POE 우상 최적화 도구</h1>
+        </div>
+
+        <div class="select-container">
+            <label>CSV 파일 선택</label>
+            <input type="file" id="csvFileInput" accept=".csv">
+        </div>
+
+        <div class="select-container">
+            <label>헤더 선택</label>
+            <select id="headerSelect">
+                <option value="">헤더를 선택하세요</option>
+            </select>
+        </div>
+
+        <div class="grid">
+            <div>
+                <h2>접두 옵션</h2>
+                <div class="grid">
+                    <div>
+                        <label>1x1 접두</label>
+                        <div id="prefix1x1Options" class="option-list"></div>
+                    </div>
+                    <div>
+                        <label>2x1 접두</label>
+                        <div id="prefix2x1Options" class="option-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2>접미 옵션</h2>
+                <div class="grid">
+                    <div>
+                        <label>1x1 접미</label>
+                        <div id="suffix1x1Options" class="option-list"></div>
+                    </div>
+                    <div>
+                        <label>2x1 접미</label>
+                        <div id="suffix2x1Options" class="option-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h2>우상 배치 영역</h2>
+            <div id="slotGrid" class="slot-grid"></div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="optimizeButton" class="btn">최적 배치 계산</button>
+            </div>
+        </div>
+
+        <div id="resultArea" style="margin-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 4px;">
+        </div>
+    </div>
+
+    <script>
+        // CSV 데이터 전역 변수
+        let csvData = [];
+        let headers = [];
+
+        // CSV 파일 로드 함수
+        function loadCSV(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const content = e.target.result;
+                    // 간단한 CSV 파싱
+                    csvData = content.split('\n').map(row => row.split(','));
+
+                    // 헤더 추출 (A3:A행)
+                    headers = csvData.slice(2).map(row => row[0]).filter(header => header);
+
+                    // 헤더 드롭다운 채우기
+                    const headerSelect = document.getElementById('headerSelect');
+                    headerSelect.innerHTML = '<option value="">헤더를 선택하세요</option>';
+                    headers.forEach(header => {
+                        const option = document.createElement('option');
+                        option.value = header;
+                        option.textContent = header;
+                        headerSelect.appendChild(option);
+                    });
+
+                    resolve(headers);
+                };
+
+                reader.onerror = function (e) {
+                    reject(new Error('파일을 읽는 중 오류가 발생했습니다.'));
+                };
+
+                reader.readAsText(file);
+            });
+        }
+
+        // 옵션 렌더링 함수
+        function renderOptions(container, options) {
+            container.innerHTML = '';
+
+            options.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option-item';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'mr-2';
+
+                const label = document.createElement('label');
+                label.textContent = option.text;
+                label.className = 'text-sm flex-grow';
+
+                const sliderContainer = document.createElement('div');
+                sliderContainer.className = 'flex items-center';
+
+                const slider = document.createElement('input');
+                slider.type = 'range';
+                slider.min = 0;
+                slider.max = 100;
+                slider.value = 0;
+                slider.className = 'w-32 mr-2';
+
+                const percentLabel = document.createElement('span');
+                percentLabel.textContent = '0%';
+
+                // 슬라이더 이벤트
+                slider.addEventListener('input', () => {
+                    percentLabel.textContent = `${slider.value}%`;
+                    checkbox.checked = slider.value > 0;
+                });
+
+                // 체크박스 이벤트
+                checkbox.addEventListener('change', () => {
+                    if (!checkbox.checked) {
+                        slider.value = 0;
+                        percentLabel.textContent = '0%';
+                    } else {
+                        slider.value = 100;
+                        percentLabel.textContent = '100%';
+                    }
+                });
+
+                sliderContainer.appendChild(slider);
+                sliderContainer.appendChild(percentLabel);
+
+                optionEl.appendChild(checkbox);
+                optionEl.appendChild(label);
+                optionEl.appendChild(sliderContainer);
+
+                container.appendChild(optionEl);
+            });
+        }
+
+        // 슬롯 그리드 생성 함수
+        function createSlotGrid() {
+            const slotGrid = document.getElementById('slotGrid');
+            const slotGridData = [
+                [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+                [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ];
+
+            slotGrid.innerHTML = '';
+            slotGridData.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    const cellEl = document.createElement('div');
+                    cellEl.className = `cell ${cell ? 'available-cell' : 'gray-cell'}`;
+                    cellEl.dataset.row = rowIndex;
+                    cellEl.dataset.col = colIndex;
+
+                    if (cell) {
+                        cellEl.addEventListener('click', () => {
+                            cellEl.classList.toggle('selected-cell');
+                        });
+                    }
+
+                    slotGrid.appendChild(cellEl);
+                });
+            });
+        }
+
+        // 특정 헤더의 옵션 추출 함수
+        function extractOptionsForHeader(headerName) {
+            const headerIndex = headers.indexOf(headerName);
+            if (headerIndex === -1) return null;
+
+            // 실제 데이터 행 인덱스 (CSV 데이터의 실제 행 번호)
+            const dataRowIndex = headerIndex + 2;
+
+            return {
+                prefix1x1: { text: csvData[dataRowIndex][1], size: '1x1' },
+                suffix1x1: { text: csvData[dataRowIndex][2], size: '1x1' },
+                prefix2x1: { text: csvData[dataRowIndex][3], size: '2x1 & 1x2' },
+                suffix2x1: { text: csvData[dataRowIndex][4], size: '2x1 & 1x2' }
+            };
+        }
+
+        // 페이지 초기화
+        function initializePage() {
+            const csvFileInput = document.getElementById('csvFileInput');
+            const headerSelect = document.getElementById('headerSelect');
+
+            // CSV 파일 선택 이벤트
+            csvFileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    await loadCSV(file);
+                    // 슬롯 그리드 생성
+                    createSlotGrid();
+                } catch (error) {
+                    console.error('CSV 파일 로드 중 오류:', error);
+                    alert('CSV 파일을 로드하는 중 오류가 발생했습니다.');
+                }
+            });
+
+            // 헤더 선택 이벤트
+            headerSelect.addEventListener('change', (e) => {
+                const selectedHeader = e.target.value;
+                if (!selectedHeader) return;
+
+                const options = extractOptionsForHeader(selectedHeader);
+
+                // 옵션 렌더링
+                renderOptions(
+                    document.getElementById('prefix1x1Options'),
+                    [options.prefix1x1]
+                );
+                renderOptions(
+                    document.getElementById('suffix1x1Options'),
+                    [options.suffix1x1]
+                );
+                renderOptions(
+                    document.getElementById('prefix2x1Options'),
+                    [options.prefix2x1]
+                );
+                renderOptions(
+                    document.getElementById('suffix2x1Options'),
+                    [options.suffix2x1]
+                );
+            });
+
+            // 최적화 버튼 이벤트
+            document.getElementById('optimizeButton').addEventListener('click', () => {
+                // 최적화 로직 구현
+                const resultArea = document.getElementById('resultArea');
+                resultArea.innerHTML = '최적화 로직 개발 중...';
+            });
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+
+</html>
+
+</body>
+
+</html>
