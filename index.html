@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POE 재조합 계산기</title>
-    <!-- Chart.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -22,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             padding: 20px;
@@ -39,10 +37,11 @@
 
         .input-group {
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
         }
 
         .input-group label {
-            display: inline-block;
             width: 120px;
         }
 
@@ -50,7 +49,7 @@
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            width: 100px;
+            width: 80px;
         }
 
         button {
@@ -66,42 +65,8 @@
             background: #357abd;
         }
 
-        .tabs {
-            margin-top: 20px;
-        }
-
-        .tab-buttons {
-            margin-bottom: 20px;
-        }
-
-        .tab-button {
-            padding: 10px 20px;
-            margin-right: 10px;
-            background: #e9ecef;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #495057;
-        }
-
-        .tab-button.active {
-            background: #4a90e2;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         .strategy-box {
-            margin-bottom: 20px;
+            margin: 20px 0;
             padding: 15px;
             border-radius: 4px;
         }
@@ -114,32 +79,30 @@
             background: #fff4e8;
         }
 
-        .chart-container {
-            margin-top: 20px;
-            height: 400px;
-        }
-
-        .cost-calculator {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }
-
-        .result-section {
-            margin-top: 20px;
-        }
-
         .guide-section {
-            margin-top: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
         }
 
-        .guide-step {
-            margin-bottom: 15px;
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .error {
+            color: red;
             padding: 10px;
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+
+        .step-title {
+            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -160,336 +123,337 @@
             <button onclick="calculateStrategy()">전략 계산하기</button>
         </div>
 
-        <div class="tabs">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('strategy')">전략</button>
-                <button class="tab-button" onclick="showTab('success-rate')">성공률</button>
-                <button class="tab-button" onclick="showTab('cost')">비용</button>
-                <button class="tab-button" onclick="showTab('guide')">가이드</button>
+        <div id="result" style="display: none;">
+            <div class="strategy-box basic-strategy">
+                <h3>기본 전략</h3>
+                <div id="basic-strategy-content"></div>
             </div>
 
-            <div id="strategy" class="tab-content active">
-                <div class="strategy-box basic-strategy">
-                    <h3>기본 전략</h3>
-                    <div id="basic-strategy-content"></div>
-                </div>
-                <div class="strategy-box exclusive-strategy">
-                    <h3>배타적 전략</h3>
-                    <div id="exclusive-strategy-content"></div>
-                </div>
+            <div class="strategy-box exclusive-strategy">
+                <h3>향상된 전략 (배타적 수식어 활용)</h3>
+                <div id="exclusive-strategy-content"></div>
             </div>
 
-            <div id="success-rate" class="tab-content">
-                <div class="chart-container">
-                    <canvas id="successChart"></canvas>
-                </div>
-            </div>
-
-            <div id="cost" class="tab-content">
-                <div class="cost-calculator">
-                    <h3>비용 계산기</h3>
-                    <div class="input-group">
-                        <label>디바인 가격:</label>
-                        <input type="number" id="divinePrice" value="0">
-                    </div>
-                    <div class="input-group">
-                        <label>카오스 가격:</label>
-                        <input type="number" id="chaosPrice" value="0">
-                    </div>
-                    <button onclick="calculateCost()">비용 계산</button>
-                    <div id="cost-result"></div>
-                </div>
-            </div>
-
-            <div id="guide" class="tab-content">
-                <div class="guide-section">
-                    <div class="guide-step">
-                        <h4>1. 기본 아이템 준비</h4>
+            <div class="guide-section">
+                <h3>필수 가이드</h3>
+                <ul>
+                    <li>아이템 레벨 = (아이템1 + 아이템2)/2 + 2</li>
+                    <li>품질 20% 이상 추천</li>
+                    <li>배타적 수식어:
                         <ul>
-                            <li>아이템 레벨 확인</li>
-                            <li>품질 20% 이상 추천</li>
-                            <li>원하는 수식어 티어 확인</li>
-                        </ul>
-                    </div>
-                    <div class="guide-step">
-                        <h4>2. 배타적 수식어 정보</h4>
-                        <ul>
+                            <li>멀티모드 (가장 저렴하고 안전한 옵션)</li>
                             <li>균열 (Fractured)</li>
                             <li>기습 (Eldritch)</li>
                             <li>에센스 (Essence)</li>
                             <li>제작된 접두사/접미사</li>
-                            <li>메타 제작 (Metacrafted)</li>
                             <li>야수 (Beast)</li>
-                            <li>장막 (Veiled)</li>
                         </ul>
-                    </div>
-                </div>
+                    </li>
+                    <li>실패 시 2p 이상 아이템은 재사용 가능</li>
+                    <li>배타적 수식어는 서로 겹칠 수 없음</li>
+                </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // 전략 데이터
-        // strategies 객체를 다음과 같이 수정하겠습니다:
+
         const strategies = {
-            '2_0': { // 접두 2개
+            '0_2': {
                 basic: {
                     steps: [
-                        '2p/0s 아이템 준비 (원하는 접두어 2개)',
-                        '1p/0s 아이템 준비 (백업용 좋은 접두어)',
-                        '총 3TP 구성으로 2개 접두어 선택 확률 ~52%'
-                    ],
-                    cost: { divine: 1, chaos: 50 }
+                        '첫 번째 아이템 준비:',
+                        '- 0p/2s 아이템 (원하는 접미어 2개 포함)',
+                        '두 번째 아이템 준비:',
+                        '- 0p/1s 아이템 (첫 번째 아이템의 접미어 중 하나 포함)',
+                        '성공률: ~52%'
+                    ]
                 },
                 exclusive: {
                     steps: [
-                        '2p/*s 아이템 준비 + 배타적 접미어',
-                        '1p/*s 아이템 준비 + 배타적 접미어',
-                        '성공률: ~45% (배타적 접미어가 선택되면서 원하는 접두어 보존)'
-                    ],
-                    cost: { divine: 2, chaos: 100 }
+                        '첫 번째 아이템 준비:',
+                        '- 0p/2s 아이템 (원하는 접미어 2개)',
+                        '- 배타적 접두어(멀티모드 등) 추가',
+                        '두 번째 아이템 준비:',
+                        '- 0p/1s 아이템 (첫 번째와 같은 접미어)',
+                        '- 배타적 접두어 추가',
+                        '성공률: ~45%',
+                        '팁: 실패시 2s 아이템은 재사용 가능'
+                    ]
                 }
             },
-            '2_1': { // 접두 2개, 접미 1개
+            '0_3': {
                 basic: {
                     steps: [
-                        '2p/1s 아이템 준비 (원하는 접두어 2개 + 접미어)',
-                        '1p/1s 아이템 준비 (백업 접두어 + 같은 접미어)',
-                        '총 4TP/2TS로 성공률 ~30%'
-                    ],
-                    cost: { divine: 2, chaos: 100 }
-                },
-                exclusive: {
-                    steps: [
-                        '2p/1s + 배타적 접미어 추가',
-                        '1p/1s + 동일한 접미어',
-                        '성공률: ~40% (배타적 수식어 전략)'
-                    ],
-                    cost: { divine: 3, chaos: 150 }
-                }
-            },
-            '3_0': { // 접두 3개
-                basic: {
-                    steps: [
-                        '2p/0s 아이템 준비 (원하는 접두어 2개)',
-                        '1p/0s 아이템 준비 (마지막 접두어)',
-                        '기본 성공률: ~10%'
-                    ],
-                    cost: { divine: 2, chaos: 100 }
-                },
-                exclusive: {
-                    steps: [
-                        '2p/*s + 배타적 접미어 준비',
-                        '1p/*s + 배타적 접미어 준비',
-                        '성공률: ~35% (배타적 전략)'
-                    ],
-                    cost: { divine: 4, chaos: 200 }
-                }
-            },
-            '3_1': { // 접두 3개, 접미 1개
-                basic: {
-                    steps: [
-                        '2p/1s 아이템 준비 (원하는 접두어 2개 + 접미어)',
-                        '1p/1s 아이템 준비 (마지막 접두어 + 동일 접미어)',
-                        '성공률: ~25%'
-                    ],
-                    cost: { divine: 3, chaos: 150 }
-                },
-                exclusive: {
-                    steps: [
-                        '2p/1s + 배타적 접미어',
-                        '1p/1s + 배타적 접미어',
-                        '접미어를 동일하게 맞추고 배타적 수식어 추가',
-                        '성공률: ~35%'
-                    ],
-                    cost: { divine: 5, chaos: 250 }
-                }
-            },
-            '1_2': { // 접두 1개, 접미 2개
-                basic: {
-                    steps: [
-                        '1p/2s 아이템 준비 (원하는 모든 수식어)',
-                        '1p/1s 아이템 준비 (동일 접두어 + 백업 접미어)',
-                        '성공률: ~30%'
-                    ],
-                    cost: { divine: 2, chaos: 100 }
-                },
-                exclusive: {
-                    steps: [
-                        '1p/2s + 배타적 접두어',
-                        '1p/1s + 배타적 접두어',
-                        '성공률: ~40%'
-                    ],
-                    cost: { divine: 3, chaos: 150 }
-                }
-            },
-            '2_2': { // 접두 2개, 접미 2개
-                basic: {
-                    steps: [
-                        '2p/2s 아이템 준비',
-                        '1p/1s 아이템 준비 (백업 수식어)',
-                        '성공률: ~20%'
-                    ],
-                    cost: { divine: 3, chaos: 150 }
-                },
-                exclusive: {
-                    steps: [
-                        '2p/2s + 배타적 수식어',
-                        '1p/1s + 배타적 수식어',
-                        '성공률: ~30%'
-                    ],
-                    cost: { divine: 4, chaos: 200 }
-                }
-            },
-            '0_2': { // 접미 2개
-                basic: {
-                    steps: [
-                        '0p/2s 아이템 준비 (원하는 접미어 2개)',
-                        '0p/1s 아이템 준비 (백업 접미어)',
-                        '총 3TS로 2개 선택 확률 ~52%'
-                    ],
-                    cost: { divine: 1, chaos: 50 }
-                },
-                exclusive: {
-                    steps: [
-                        '*/2s + 배타적 접두어',
-                        '*/1s + 배타적 접두어',
-                        '성공률: ~45%'
-                    ],
-                    cost: { divine: 2, chaos: 100 }
-                }
-            },
-            '0_3': { // 접미 3개
-                basic: {
-                    steps: [
-                        '0p/2s 아이템 준비 (원하는 접미어 2개)',
-                        '0p/1s 아이템 준비 (마지막 접미어)',
+                        '첫 번째 아이템 준비:',
+                        '- 0p/2s 아이템 (원하는 접미어 2개)',
+                        '두 번째 아이템 준비:',
+                        '- 0p/1s 아이템 (남은 원하는 접미어)',
                         '성공률: ~10%'
-                    ],
-                    cost: { divine: 2, chaos: 100 }
+                    ]
                 },
                 exclusive: {
                     steps: [
-                        '*/2s + 배타적 접두어',
-                        '*/1s + 배타적 접두어',
-                        '성공률: ~35%'
-                    ],
-                    cost: { divine: 4, chaos: 200 }
+                        '첫 번째 아이템 준비:',
+                        '- 0p/2s 아이템 (원하는 접미어 2개)',
+                        '- 배타적 접두어 추가',
+                        '두 번째 아이템 준비:',
+                        '- 0p/1s 아이템 (마지막 접미어)',
+                        '- 배타적 접두어 추가',
+                        '성공률: ~35%',
+                        '팁: 배타적 접두어가 선택되면 접미어 3개 선택 가능성 증가'
+                    ]
+                }
+            },
+            '1_2': {
+                basic: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 1p/2s 아이템 (원하는 접두어 1개, 원하는 접미어 2개)',
+                        '두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (같은 접두어, 접미어 중 하나)',
+                        '성공률: ~30%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 1p/2s 아이템 (원하는 접두어와 접미어들)',
+                        '- 배타적 접두어 추가',
+                        '두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (같은 접두어, 접미어 중 하나)',
+                        '- 배타적 접두어 추가',
+                        '성공률: ~40%',
+                        '팁: 같은 접두어를 사용해서 원하는 접두어 보존'
+                    ]
+                }
+            },
+            '1_3': {
+                basic: {
+                    steps: [
+                        '1단계 - 첫 번째 아이템 준비:',
+                        '- 1p/2s 아이템 (원하는 접두어, 원하는 접미어 2개)',
+                        '1단계 - 두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (같은 접두어, 마지막 접미어)',
+                        '성공률: ~25%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '1단계: 3s 아이템 먼저 제작',
+                        '- 0p/2s + 0p/1s로 3s 만들기 (배타적 전략 사용)',
+                        '2단계: 3s 아이템에 접두어 추가',
+                        '- 3s 아이템 + 1p/* 아이템 조합',
+                        '- 두 아이템 모두 배타적 수식어 추가',
+                        '성공률: ~35%',
+                        '팁: 단계별로 진행하면서 실패시 3s 아이템 재사용'
+                    ]
+                }
+            },
+            '2_0': {
+                basic: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/0s 아이템 (원하는 접두어 2개)',
+                        '두 번째 아이템 준비:',
+                        '- 1p/0s 아이템 (아무 접두어)',
+                        '성공률: ~52%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/0s 아이템 (원하는 접두어 2개)',
+                        '- 배타적 접미어 추가',
+                        '두 번째 아이템 준비:',
+                        '- 1p/0s 아이템',
+                        '- 배타적 접미어 추가',
+                        '성공률: ~45%',
+                        '팁: 배타적 접미어가 선택되면 접두어가 살아남을 확률 증가'
+                    ]
+                }
+            },
+            '2_1': {
+                basic: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/1s 아이템 (원하는 접두어 2개, 원하는 접미어)',
+                        '두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (아무 접두어, 같은 접미어)',
+                        '성공률: ~30%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/1s 아이템 (원하는 접두어 2개, 원하는 접미어)',
+                        '- 배타적 접미어(멀티모드 등) 추가',
+                        '두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (아무 접두어, 같은 접미어)',
+                        '- 배타적 접미어 추가',
+                        '성공률: ~40%',
+                        '팁: 두 아이템 모두 같은 접미어를 넣어 접미어 보존'
+                    ]
+                }
+            },
+            '2_2': {
+                basic: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/2s 아이템 (원하는 접두어 2개, 원하는 접미어 2개)',
+                        '두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (접두어 하나, 접미어 하나 복사)',
+                        '성공률: ~20%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/2s 아이템 (모든 원하는 수식어)',
+                        '- 배타적 수식어 추가',
+                        '두 번째 아이템 준비:',
+                        '- 1p/1s 아이템 (수식어 복사)',
+                        '- 배타적 수식어 추가',
+                        '성공률: ~30%',
+                        '팁: 양쪽 모두 배타적 수식어로 원하는 수식어 보존'
+                    ]
+                }
+            },
+            '2_3': {
+                basic: {
+                    steps: [
+                        '1단계: 3s 아이템 제작',
+                        '- 0p/2s + 0p/1s로 만들기',
+                        '2단계: 2p 추가',
+                        '- 2p/0s + 0p/3s 조합',
+                        '성공률: ~20%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '1단계: 3s 아이템 제작',
+                        '- 0p/2s + 0p/1s (배타적 접두어로 보호)',
+                        '2단계: 2p 추가',
+                        '- 2p/0s 아이템 준비 (배타적 접미어 추가)',
+                        '- 0p/3s와 조합',
+                        '성공률: ~25%',
+                        '팁: 각 단계마다 배타적 수식어로 보호, 실패시 3s 재사용'
+                    ]
+                }
+            },
+            '3_0': {
+                basic: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/0s 아이템 (원하는 접두어 2개)',
+                        '두 번째 아이템 준비:',
+                        '- 1p/0s 아이템 (마지막 원하는 접두어)',
+                        '성공률: ~10%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '첫 번째 아이템 준비:',
+                        '- 2p/0s 아이템 (원하는 접두어 2개)',
+                        '- 배타적 접미어 추가',
+                        '두 번째 아이템 준비:',
+                        '- 1p/0s 아이템 (마지막 접두어)',
+                        '- 배타적 접미어 추가',
+                        '성공률: ~35%',
+                        '팁: 실패시 2p 아이템 재사용 가능'
+                    ]
+                }
+            },
+            '3_1': {
+                basic: {
+                    steps: [
+                        '1단계: 3p 아이템 제작',
+                        '- 2p/0s + 1p/0s로 만들기',
+                        '2단계: 접미어 추가',
+                        '- 3p/0s + 0p/1s 조합',
+                        '성공률: ~25%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '1단계: 3p 아이템 제작',
+                        '- 2p/0s + 1p/0s (둘 다 배타적 접미어로 보호)',
+                        '2단계: 접미어 추가',
+                        '- 3p/0s + 0p/1s 조합',
+                        '- 배타적 수식어로 보호',
+                        '성공률: ~35%',
+                        '팁: 단계별로 진행, 실패시 3p 아이템 재사용'
+                    ]
+                }
+            },
+            '3_2': {
+                basic: {
+                    steps: [
+                        '1단계: 3p 아이템 제작',
+                        '- 2p/0s + 1p/0s로 만들기',
+                        '2단계: 접미어 추가',
+                        '- 3p/0s + 0p/2s 조합',
+                        '성공률: ~15%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '1단계: 3p/1s 아이템 제작',
+                        '- 2p/1s + 1p/1s (같은 접미어, 배타적 보호)',
+                        '2단계: 두 번째 접미어 추가',
+                        '- 3p/1s + 0p/2s 조합',
+                        '- 배타적 수식어로 보호',
+                        '성공률: ~25%',
+                        '팁: 단계별 진행하면서 각 단계 성공 확인'
+                    ]
+                }
+            },
+            '3_3': {
+                basic: {
+                    steps: [
+                        '1단계: 3p/1s 아이템 제작',
+                        '2단계: 0p/3s 아이템 제작',
+                        '3단계: 두 아이템 조합',
+                        '성공률: ~10%'
+                    ]
+                },
+                exclusive: {
+                    steps: [
+                        '1단계: 3p/2s 아이템 제작',
+                        '- 2p/2s + 1p/2s (배타적 수식어로 보호)',
+                        '2단계: 0p/3s 아이템 별도 제작',
+                        '- 0p/2s + 0p/1s (배타적 수식어로 보호)',
+                        '3단계: 최종 조합',
+                        '- 3p/2s + 0p/3s 조합',
+                        '성공률: ~20%',
+                        '팁: 각 단계 성공 후 다음 단계 진행, 실패 대비 백업 필수'
+                    ]
                 }
             }
         };
-
-        let successChart = null;
-
-        function showTab(tabId) {
-            // 모든 탭 컨텐츠 숨기기
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // 모든 탭 버튼 비활성화
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // 선택된 탭 보이기
-            document.getElementById(tabId).classList.add('active');
-
-            // 선택된 탭 버튼 활성화
-            event.target.classList.add('active');
-
-            // 차트 탭인 경우 차트 업데이트
-            if (tabId === 'success-rate') {
-                updateSuccessChart();
-            }
-        }
 
         function calculateStrategy() {
             const prefix = document.getElementById('prefixCount').value;
             const suffix = document.getElementById('suffixCount').value;
             const strategyKey = `${prefix}_${suffix}`;
 
-            if (strategies[strategyKey]) {
-                displayStrategy(strategies[strategyKey]);
-                updateSuccessChart();
-            } else {
-                alert('해당 조합에 대한 전략이 없습니다.');
-            }
-        }
-
-        function displayStrategy(strategy) {
-            // 기본 전략 표시
-            const basicContent = document.getElementById('basic-strategy-content');
-            basicContent.innerHTML = `<ul>${strategy.basic.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
-
-            // 배타적 전략 표시
-            const exclusiveContent = document.getElementById('exclusive-strategy-content');
-            exclusiveContent.innerHTML = `<ul>${strategy.exclusive.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
-        }
-
-        function updateSuccessChart() {
-            const ctx = document.getElementById('successChart').getContext('2d');
-
-            if (successChart) {
-                successChart.destroy();
-            }
-
-            const prefix = document.getElementById('prefixCount').value;
-            const suffix = document.getElementById('suffixCount').value;
-
-            successChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['기본 전략', '수정어 수 증가', '배타적 전략'],
-                    datasets: [{
-                        label: '성공률 (%)',
-                        data: [10, 24, 35], // 예시 데이터
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-
-        function calculateCost() {
-            const divinePrice = document.getElementById('divinePrice').value;
-            const chaosPrice = document.getElementById('chaosPrice').value;
-            const prefix = document.getElementById('prefixCount').value;
-            const suffix = document.getElementById('suffixCount').value;
-            const strategyKey = `${prefix}_${suffix}`;
+            document.getElementById('result').style.display = 'block';
 
             if (strategies[strategyKey]) {
                 const strategy = strategies[strategyKey];
-                const basicCost = strategy.basic.cost.divine * divinePrice + strategy.basic.cost.chaos;
-                const exclusiveCost = strategy.exclusive.cost.divine * divinePrice + strategy.exclusive.cost.chaos;
 
-                document.getElementById('cost-result').innerHTML = `
-                    <h4>예상 비용:</h4>
-                    <p>기본 전략: ${basicCost} chaos</p>
-                    <p>배타적 전략: ${exclusiveCost} chaos</p>
-                `;
+                // 기본 전략 표시
+                document.getElementById('basic-strategy-content').innerHTML =
+                    `<ul>${strategy.basic.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
+
+                // 배타적 전략 표시
+                document.getElementById('exclusive-strategy-content').innerHTML =
+                    `<ul>${strategy.exclusive.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
+            } else {
+                document.getElementById('result').innerHTML =
+                    '<div class="error">해당 조합에 대한 전략이 없습니다.</div>';
             }
         }
-
-        // 초기 차트 생성
-        updateSuccessChart();
     </script>
 </body>
 
