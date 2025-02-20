@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POE 재조합 계산기</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: inline-block;
+            width: 120px;
+        }
+
+        .input-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100px;
+        }
+
+        button {
+            background: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #357abd;
+        }
+
+        .tabs {
+            margin-top: 20px;
+        }
+
+        .tab-buttons {
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #495057;
+        }
+
+        .tab-button.active {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .strategy-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .basic-strategy {
+            background: #e8f4ff;
+        }
+
+        .exclusive-strategy {
+            background: #fff4e8;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            height: 400px;
+        }
+
+        .cost-calculator {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .result-section {
+            margin-top: 20px;
+        }
+
+        .guide-section {
+            margin-top: 20px;
+        }
+
+        .guide-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>POE 재조합 계산기</h1>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>접두어 개수:</label>
+                <input type="number" id="prefixCount" min="0" max="3" value="0">
+            </div>
+            <div class="input-group">
+                <label>접미어 개수:</label>
+                <input type="number" id="suffixCount" min="0" max="3" value="0">
+            </div>
+            <button onclick="calculateStrategy()">전략 계산하기</button>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('strategy')">전략</button>
+                <button class="tab-button" onclick="showTab('success-rate')">성공률</button>
+                <button class="tab-button" onclick="showTab('cost')">비용</button>
+                <button class="tab-button" onclick="showTab('guide')">가이드</button>
+            </div>
+
+            <div id="strategy" class="tab-content active">
+                <div class="strategy-box basic-strategy">
+                    <h3>기본 전략</h3>
+                    <div id="basic-strategy-content"></div>
+                </div>
+                <div class="strategy-box exclusive-strategy">
+                    <h3>배타적 전략</h3>
+                    <div id="exclusive-strategy-content"></div>
+                </div>
+            </div>
+
+            <div id="success-rate" class="tab-content">
+                <div class="chart-container">
+                    <canvas id="successChart"></canvas>
+                </div>
+            </div>
+
+            <div id="cost" class="tab-content">
+                <div class="cost-calculator">
+                    <h3>비용 계산기</h3>
+                    <div class="input-group">
+                        <label>디바인 가격:</label>
+                        <input type="number" id="divinePrice" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label>카오스 가격:</label>
+                        <input type="number" id="chaosPrice" value="0">
+                    </div>
+                    <button onclick="calculateCost()">비용 계산</button>
+                    <div id="cost-result"></div>
+                </div>
+            </div>
+
+            <div id="guide" class="tab-content">
+                <div class="guide-section">
+                    <div class="guide-step">
+                        <h4>1. 기본 아이템 준비</h4>
+                        <ul>
+                            <li>아이템 레벨 확인</li>
+                            <li>품질 20% 이상 추천</li>
+                            <li>원하는 수식어 티어 확인</li>
+                        </ul>
+                    </div>
+                    <div class="guide-step">
+                        <h4>2. 배타적 수식어 정보</h4>
+                        <ul>
+                            <li>균열 (Fractured)</li>
+                            <li>기습 (Eldritch)</li>
+                            <li>에센스 (Essence)</li>
+                            <li>제작된 접두사/접미사</li>
+                            <li>메타 제작 (Metacrafted)</li>
+                            <li>야수 (Beast)</li>
+                            <li>장막 (Veiled)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전략 데이터
+        // strategies 객체를 다음과 같이 수정하겠습니다:
+        const strategies = {
+            '2_0': { // 접두 2개
+                basic: {
+                    steps: [
+                        '2p/0s 아이템 준비 (원하는 접두어 2개)',
+                        '1p/0s 아이템 준비 (백업용 좋은 접두어)',
+                        '총 3TP 구성으로 2개 접두어 선택 확률 ~52%'
+                    ],
+                    cost: { divine: 1, chaos: 50 }
+                },
+                exclusive: {
+                    steps: [
+                        '2p/*s 아이템 준비 + 배타적 접미어',
+                        '1p/*s 아이템 준비 + 배타적 접미어',
+                        '성공률: ~45% (배타적 접미어가 선택되면서 원하는 접두어 보존)'
+                    ],
+                    cost: { divine: 2, chaos: 100 }
+                }
+            },
+            '2_1': { // 접두 2개, 접미 1개
+                basic: {
+                    steps: [
+                        '2p/1s 아이템 준비 (원하는 접두어 2개 + 접미어)',
+                        '1p/1s 아이템 준비 (백업 접두어 + 같은 접미어)',
+                        '총 4TP/2TS로 성공률 ~30%'
+                    ],
+                    cost: { divine: 2, chaos: 100 }
+                },
+                exclusive: {
+                    steps: [
+                        '2p/1s + 배타적 접미어 추가',
+                        '1p/1s + 동일한 접미어',
+                        '성공률: ~40% (배타적 수식어 전략)'
+                    ],
+                    cost: { divine: 3, chaos: 150 }
+                }
+            },
+            '3_0': { // 접두 3개
+                basic: {
+                    steps: [
+                        '2p/0s 아이템 준비 (원하는 접두어 2개)',
+                        '1p/0s 아이템 준비 (마지막 접두어)',
+                        '기본 성공률: ~10%'
+                    ],
+                    cost: { divine: 2, chaos: 100 }
+                },
+                exclusive: {
+                    steps: [
+                        '2p/*s + 배타적 접미어 준비',
+                        '1p/*s + 배타적 접미어 준비',
+                        '성공률: ~35% (배타적 전략)'
+                    ],
+                    cost: { divine: 4, chaos: 200 }
+                }
+            },
+            '3_1': { // 접두 3개, 접미 1개
+                basic: {
+                    steps: [
+                        '2p/1s 아이템 준비 (원하는 접두어 2개 + 접미어)',
+                        '1p/1s 아이템 준비 (마지막 접두어 + 동일 접미어)',
+                        '성공률: ~25%'
+                    ],
+                    cost: { divine: 3, chaos: 150 }
+                },
+                exclusive: {
+                    steps: [
+                        '2p/1s + 배타적 접미어',
+                        '1p/1s + 배타적 접미어',
+                        '접미어를 동일하게 맞추고 배타적 수식어 추가',
+                        '성공률: ~35%'
+                    ],
+                    cost: { divine: 5, chaos: 250 }
+                }
+            },
+            '1_2': { // 접두 1개, 접미 2개
+                basic: {
+                    steps: [
+                        '1p/2s 아이템 준비 (원하는 모든 수식어)',
+                        '1p/1s 아이템 준비 (동일 접두어 + 백업 접미어)',
+                        '성공률: ~30%'
+                    ],
+                    cost: { divine: 2, chaos: 100 }
+                },
+                exclusive: {
+                    steps: [
+                        '1p/2s + 배타적 접두어',
+                        '1p/1s + 배타적 접두어',
+                        '성공률: ~40%'
+                    ],
+                    cost: { divine: 3, chaos: 150 }
+                }
+            },
+            '2_2': { // 접두 2개, 접미 2개
+                basic: {
+                    steps: [
+                        '2p/2s 아이템 준비',
+                        '1p/1s 아이템 준비 (백업 수식어)',
+                        '성공률: ~20%'
+                    ],
+                    cost: { divine: 3, chaos: 150 }
+                },
+                exclusive: {
+                    steps: [
+                        '2p/2s + 배타적 수식어',
+                        '1p/1s + 배타적 수식어',
+                        '성공률: ~30%'
+                    ],
+                    cost: { divine: 4, chaos: 200 }
+                }
+            },
+            '0_2': { // 접미 2개
+                basic: {
+                    steps: [
+                        '0p/2s 아이템 준비 (원하는 접미어 2개)',
+                        '0p/1s 아이템 준비 (백업 접미어)',
+                        '총 3TS로 2개 선택 확률 ~52%'
+                    ],
+                    cost: { divine: 1, chaos: 50 }
+                },
+                exclusive: {
+                    steps: [
+                        '*/2s + 배타적 접두어',
+                        '*/1s + 배타적 접두어',
+                        '성공률: ~45%'
+                    ],
+                    cost: { divine: 2, chaos: 100 }
+                }
+            },
+            '0_3': { // 접미 3개
+                basic: {
+                    steps: [
+                        '0p/2s 아이템 준비 (원하는 접미어 2개)',
+                        '0p/1s 아이템 준비 (마지막 접미어)',
+                        '성공률: ~10%'
+                    ],
+                    cost: { divine: 2, chaos: 100 }
+                },
+                exclusive: {
+                    steps: [
+                        '*/2s + 배타적 접두어',
+                        '*/1s + 배타적 접두어',
+                        '성공률: ~35%'
+                    ],
+                    cost: { divine: 4, chaos: 200 }
+                }
+            }
+        };
+
+        let successChart = null;
+
+        function showTab(tabId) {
+            // 모든 탭 컨텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // 선택된 탭 보이기
+            document.getElementById(tabId).classList.add('active');
+
+            // 선택된 탭 버튼 활성화
+            event.target.classList.add('active');
+
+            // 차트 탭인 경우 차트 업데이트
+            if (tabId === 'success-rate') {
+                updateSuccessChart();
+            }
+        }
+
+        function calculateStrategy() {
+            const prefix = document.getElementById('prefixCount').value;
+            const suffix = document.getElementById('suffixCount').value;
+            const strategyKey = `${prefix}_${suffix}`;
+
+            if (strategies[strategyKey]) {
+                displayStrategy(strategies[strategyKey]);
+                updateSuccessChart();
+            } else {
+                alert('해당 조합에 대한 전략이 없습니다.');
+            }
+        }
+
+        function displayStrategy(strategy) {
+            // 기본 전략 표시
+            const basicContent = document.getElementById('basic-strategy-content');
+            basicContent.innerHTML = `<ul>${strategy.basic.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
+
+            // 배타적 전략 표시
+            const exclusiveContent = document.getElementById('exclusive-strategy-content');
+            exclusiveContent.innerHTML = `<ul>${strategy.exclusive.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
+        }
+
+        function updateSuccessChart() {
+            const ctx = document.getElementById('successChart').getContext('2d');
+
+            if (successChart) {
+                successChart.destroy();
+            }
+
+            const prefix = document.getElementById('prefixCount').value;
+            const suffix = document.getElementById('suffixCount').value;
+
+            successChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['기본 전략', '수정어 수 증가', '배타적 전략'],
+                    datasets: [{
+                        label: '성공률 (%)',
+                        data: [10, 24, 35], // 예시 데이터
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateCost() {
+            const divinePrice = document.getElementById('divinePrice').value;
+            const chaosPrice = document.getElementById('chaosPrice').value;
+            const prefix = document.getElementById('prefixCount').value;
+            const suffix = document.getElementById('suffixCount').value;
+            const strategyKey = `${prefix}_${suffix}`;
+
+            if (strategies[strategyKey]) {
+                const strategy = strategies[strategyKey];
+                const basicCost = strategy.basic.cost.divine * divinePrice + strategy.basic.cost.chaos;
+                const exclusiveCost = strategy.exclusive.cost.divine * divinePrice + strategy.exclusive.cost.chaos;
+
+                document.getElementById('cost-result').innerHTML = `
+                    <h4>예상 비용:</h4>
+                    <p>기본 전략: ${basicCost} chaos</p>
+                    <p>배타적 전략: ${exclusiveCost} chaos</p>
+                `;
+            }
+        }
+
+        // 초기 차트 생성
+        updateSuccessChart();
+    </script>
+</body>
+
+</html>
