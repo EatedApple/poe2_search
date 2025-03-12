@@ -47,8 +47,13 @@
             cursor: pointer;
             font-size: 14px;
         }
-        .button:hover {
-            background-color: #4b40c0;
+        .code-inline {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            word-break: break-all;
         }
     </style>
 </head>
@@ -67,6 +72,9 @@
                 <p>2. 아래 명령어를 실행하여 액세스 토큰을 발급받으세요:</p>
                 <pre id="curl-command" class="code-box"></pre>
                 <p>3. 응답에서 <code>"access_token"</code> 값을 복사하여 G-DRAGON 재고 알림 프로그램의 설정에 입력하세요.</p>
+                <h4>사용된 키 정보:</h4>
+                <p>REST API 키: <span id="api-key-display" class="code-inline"></span></p>
+                <p>Client Secret: <span id="secret-key-display" class="code-inline">설정된 경우 사용됨</span></p>
             </div>
             
             <button class="button" onclick="copyCode()">인증 코드 복사</button>
@@ -91,15 +99,20 @@
             const code = urlParams.get('code');
             const error = urlParams.get('error');
             
+            // URL에서 API 키와 시크릿 키 추출
+            const apiKey = urlParams.get('api_key');
+            const secretKey = urlParams.get('secret_key');
+            
             if (code) {
                 // 인증 코드가 있는 경우
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('auth-success').style.display = 'block';
                 document.getElementById('auth-code').textContent = code;
                 
-                // REST API 키를 여기에 입력하세요
-                const clientId = "e6f5886762862a7042ae5b867b615b6a";
-                const clientSecret = "dFjchNyuYq3gs2AnMIea9oF5oZeLYnyA";
+                // 파라미터로 받은 API 키와 시크릿 키 사용
+                // 없으면 기본값 사용(개발자가 HTML에 직접 입력한 값)
+                const clientId = apiKey || "여기에_REST_API_KEY를_입력하세요";
+                const clientSecret = secretKey || "여기에_CLIENT_SECRET을_입력하세요";
                 const redirectUri = window.location.origin + window.location.pathname;
                 
                 // curl 명령어 생성
@@ -112,6 +125,12 @@
 -d "code=${code}"`;
                 
                 document.getElementById('curl-command').textContent = curlCommand;
+                
+                // API 키와 시크릿 키 표시
+                document.getElementById('api-key-display').textContent = clientId;
+                if (clientSecret) {
+                    document.getElementById('secret-key-display').textContent = clientSecret;
+                }
                 
             } else if (error) {
                 // 에러가 있는 경우
