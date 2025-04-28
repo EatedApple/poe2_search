@@ -1,489 +1,718 @@
-<!DOCTYPE html>
-<html lang="ko">
+\
+<!doctype html>
+<html lang="en"><head>
+        
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POE 재조합 계산기</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="utf-8" />
+<title>Vem cá me ver amor -  CC.CC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="하나의 링크. 하나의 이메일. 하나의 정체성. 모두 cc.cc에서">
+<meta name="keywords" content="cc.cc, claim your name, custom link, short link, email alias, email forwarding, digital identity, one link bio, vanity url, branded url, personal brand, link in bio, create your link, professional email, own your link">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="pragma" content="no-cache">
+<meta name="format-detection" content="telephone=no">
+<meta name="google" content="notranslate">
 
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            padding: 20px;
-            background-color: #f0f2f5;
-        }
+<meta name="robots" content="index, follow">
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+<meta property="og:url" content="amii.cc.cc" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Vem cá me ver amor -  CC.CC" />
+<meta property="og:image" content="https://short-img2.cc.cc/2025/202504/20250424/aa18c68a.jpg" />
+<meta property="og:image:type" content="image/">
+<meta property="og:description" content="하나의 링크. 하나의 이메일. 하나의 정체성. 모두 cc.cc에서" />
+<meta property="og:image:secure_url" content="" />
 
-        .input-section {
-            margin-bottom: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="" />
+<meta name="twitter:title" content="Vem cá me ver amor -  CC.CC" />
+<meta name="twitter:description" content="하나의 링크. 하나의 이메일. 하나의 정체성. 모두 cc.cc에서" />
+<meta name="twitter:image" content="https://short-img2.cc.cc/2025/202504/20250424/aa18c68a.jpg" />
+<meta name="twitter:image:alt" content="Vem cá me ver amor -  CC.CC" />
+<meta name="twitter:url" content="amii.cc.cc" />
 
-        .input-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
 
-        .input-group label {
-            width: 120px;
-        }
+<!-- App favicon -->
+<link rel="shortcut icon" href="https://short-img1.cc.cc/img/favicon.ico">
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- Icons Css -->
 
-        .input-group input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 80px;
-        }
+<!-- Bootstrap Css -->
+<!-- 핵심 CSS를 먼저 로드 (렌더링 블로킹 최소화) -->
+<link href="https://cc.cc//assets/css/bootstrap-core.css" rel="stylesheet" type="text/css" />
+    
+<!-- 나머지 CSS는 비동기로 로드 -->
+<link rel="preload" href="https://cc.cc//assets/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cc.cc//assets/css/bootstrap.min.css"></noscript>
+    
+<link rel="preload" href="https://cc.cc//assets/css/app.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cc.cc//assets/css/app.min.css"></noscript>
 
-        button {
-            background: #4a90e2;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+<!--Custom Css-->
+<style>
+  .badge {
+    font-size: 0.975rem !important; /* 기본 0.65rem x 1.5 */
+    padding: 0.375em 0.75em !important; /* 기본 padding의 1.5배 정도 */
+    font-weight: 200 !important; /* bold 제거, normal과 동일한 의미 */
+  }
+</style>
 
-        button:hover {
-            background: #357abd;
-        }
-
-        .strategy-box {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 4px;
-        }
-
-        .basic-strategy {
-            background: #e8f4ff;
-        }
-
-        .exclusive-strategy {
-            background: #fff4e8;
-        }
-
-        .guide-section {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 4px;
-        }
-
-        ul {
-            padding-left: 20px;
-        }
-
-        li {
-            margin: 8px 0;
-        }
-
-        .error {
-            color: red;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        .step-title {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 
-<body>
-    <div class="container">
-        <h1>POE 재조합 계산기</h1>
+<style>
 
-        <div class="input-section">
-            <div class="input-group">
-                <label>접두어 개수:</label>
-                <input type="number" id="prefixCount" min="0" max="3" value="0">
-            </div>
-            <div class="input-group">
-                <label>접미어 개수:</label>
-                <input type="number" id="suffixCount" min="0" max="3" value="0">
-            </div>
-            <button onclick="calculateStrategy()">전략 계산하기</button>
+.landing-bg
+{
+        background-color:#f1f0fe;
+}
+
+.btn + .btn {
+        margin-left: 20px;
+}
+.avatar-lg {
+        width: 150px;
+        height: 150px;
+        position: relative;
+        display: inline-block;
+}
+.settings-badge {
+        position: absolute;
+        bottom: 0px; /* Adjusted for 2mm upward movement */
+        right: 25px; /* Adjusted for 10mm rightward movement */
+        width: 30px;
+        height: 30px;
+        background-color: #fff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #121212;
+        font-size: 18px;
+        border: 2px solid white;
+}
+.card-body {
+        padding: 2rem;
+}
+.blog-title {
+        font-size: 1.5rem;
+}
+.fs-17 {
+        font-size: 1.5rem;
+}
+.powered-by {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1rem;
+        position: fixed;
+        width: 100%;
+        bottom: 5px;
+        padding: 10px 0;
+        font-weight:500;
+}
+
+.container {
+        margin-bottom: 70px;
+}
+.profile-name {
+        margin-top: 1rem; /* Adjusted space between profile picture and name */
+}
+
+
+ .bg-disabled
+ {
+         background-color:#d3d3d3 !important;
+ }
+
+.tooltip-custom {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #343a40;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s;
+    width: 220px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.tooltip-show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.deactivate-link
+{
+        color: var(--bs-secondary);
+}
+
+</style>
+</head>
+<body class="d-flex justify-content-center align-items-center min-vh-100 landing-bg">
+<div class="container landing-bg">
+
+        <div class="row justify-content-center landing-bg">
+
+<style>
+.fixed-top {
+        position: fixed;
+        top: 10px;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+}
+
+.fixed-content {
+        min-width: 400px; /* 원하는 고정 너비를 설정 */
+        max-width: 400px; /* 원하는 고정 너비를 설정 */
+}
+
+.btn-square {
+    font-size: 24px; /* 원하는 크기로 설정 */
+}
+
+
+.header-item {
+    padding: 0;  /* 패딩 제거 */
+    margin: 0;   /* 마진 제거 */
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-menu {
+    margin-top: 0 !important;  /* 드롭다운과 아이콘 사이 간격 제거 */
+}
+
+.list-group-item:hover {
+        background-color: #f8f9fa; /* 연한 회색 (Bootstrap 기본 색상) */
+        cursor: pointer; /* 마우스 포인터 변경 */
+}
+
+
+/* 기본 상태: 380px로 설정 */
+.menu-box {
+  max-width: 400px;
+}
+
+/* 브라우저 폭이 380px 이하일 경우 */
+@media (max-width: 400px) {
+  .menu-box {
+    width: 98%;
+  }
+}
+
+/* 브라우저 폭이 380px 이상일 경우 */
+@media (min-width: 400px) {
+  .menu-box {
+    width: 98%;
+  }
+}
+
+
+
+</style>
+
+                <div class="row justify-content-center landing-bg fixed-top t text-center" style='background-color: transparent;'>
+                        <div class="ms-4 text-end menu-box">
+                            <ul class=" mb-0 p-0">
+                                <li class="list-inline-item dropdown">
+                                                <a href="javascript:void(0)" id="notification" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <span class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; padding: 0; gap: 0px;">
+                                                                <svg width="24" height="24" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                                                <g fill="#766DF4" stroke="#766DF4" stroke-width="2">
+                                                                <path d="M8.236,15.765C5.901,15.765,4,17.665,4,20c0,2.336,1.901,4.234,4.236,4.234c2.336,0,4.235-1.898,4.235-4.234
+                                                                C12.472,17.665,10.572,15.765,8.236,15.765z M8.236,22.824c-1.557,0-2.823-1.268-2.823-2.824c0-1.557,1.267-2.824,2.823-2.824
+                                                                c1.558,0,2.822,1.267,2.822,2.824C11.059,21.557,9.794,22.824,8.236,22.824z"/>
+                                                                <path d="M20,15.765c-2.334,0-4.236,1.899-4.236,4.235c0,2.336,1.902,4.234,4.236,4.234c2.337,0,4.236-1.898,4.236-4.234
+                                                                C24.236,17.665,22.337,15.765,20,15.765z M20,22.824c-1.557,0-2.822-1.268-2.822-2.824c0-1.557,1.266-2.824,2.822-2.824
+                                                                c1.559,0,2.822,1.267,2.822,2.824C22.822,21.557,21.559,22.824,20,22.824z"/>
+                                                                <path d="M31.764,15.765c-2.334,0-4.235,1.899-4.235,4.235c0,2.336,1.901,4.234,4.235,4.234C34.101,24.234,36,22.336,36,20
+                                                                C36,17.665,34.101,15.765,31.764,15.765z M31.764,22.824c-1.556,0-2.822-1.268-2.822-2.824c0-1.557,1.267-2.824,2.822-2.824
+                                                                c1.559,0,2.823,1.267,2.823,2.824C34.587,21.557,33.322,22.824,31.764,22.824z"/>
+                                                                </g>
+                                                                </svg>
+                                                        </span>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0 " aria-labelledby="notification" style="margin-top: 0 !important;">
+                                                        <div class="text-end bg-light p-2">
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <ul class="list-group">
+                                                                <li class="list-group-item list-group-item-action text-primary fw-bold"
+                                                                        onClick="location='https://cc.cc/account/sign_out_proc.php?ref=amii'">
+                                                                                 로그아웃                                                                </li>
+                                                                <li class="list-group-item list-group-item-action text-primary fw-bold"
+                                                                               onClick="$('#sendTipModal').modal('show');">
+                                                                        팁 보내기                                                                </li>
+
+                                                                <li class="list-group-item list-group-item-action text-primary fw-bold"
+                                                                               onClick="$('#reportThisLinkModal').modal('show');">
+                                                                        이 링크 신고하기                                                                </li>
+                                                        </ul>
+                                                </div>
+                                        </li>
+                                </ul>
+                                <!--end header-menu-->
+                        </div>
+                </div>
+
+<style>
+.circle-square {
+    width: 40px; /* 너비 */
+    height: 40px; /* 높이 */
+    padding: 0; /* 안쪽 여백 제거 */
+    display: inline-flex; /* 가운데 정렬 */
+    justify-content: center; /* 내용물을 중앙에 맞춤 */
+    align-items: center; /* 내용물을 중앙에 맞춤 */
+    border-radius: 50%; /* rounded-circle 사용 시 */
+}
+</style>
+
+                <div class=" landing-bg">
+                        <div class="card blog-author-sidebar border-0 landing-bg">
+                                <div class="card-body p-4">
+                                        <div class="mb-2 text-center">
+                                                <div class="position-relative d-inline-block">
+                                                        <img src="https://short-img2.cc.cc/2025/202504/20250424/aa18c68a.jpg" alt="amii.cc.cc" class="rounded-circle img-thumbnail avatar-lg mb-2">                                                </div>
+
+                                                <h6 class="fs-20 profile-name mb-2">
+                                                        Vem cá me ver amor                                                </h6>
+
+                                                <p>
+                                                        <a href='https://amii.cc.cc' class="text-primary" style='font-size:18px'>amii.cc.cc</a>
+                                                </p>
+
+                                                <div class='mt-4'></div>
+
+
+<style>
+
+.social-link {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+}
+
+.social-link2 {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #74788d;
+
+  svg, i {
+    width: 50%;
+    height: 50%;
+  }
+}
+
+
+.facebook-messenger-active {
+  background-color: #0084ff !important; 
+  color: #fff !important;
+}
+
+.whatsapp-active {
+  background-color: #25D366 !important;
+  color: #fff !important;
+}
+
+.telegram-active {
+  background-color: #0088CC !important; 
+  color: #fff !important;
+}
+
+
+.line-active {
+  background-color: #00C300 !important; 
+  color: #fff !important;
+}
+
+
+.viber-active {
+  background-color: #665CAC !important;
+  color: #fff !important;
+}
+
+
+.add-active {
+  background-color: #eaeaea !important;
+  color: #fff !important;
+}
+
+
+</style>
+
+                                                        <ul class="candidate-detail-social-menu list-inline mb-0">
+                                                                <li class="list-inline-item">
+                                                                        <a href="javascript:void(0)" class="social-link bg-disabled" onclick="showTooltip(event)" data-bs-toggle='tooltip' data-bs-placement='top' data-bs-original-title=''><svg xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 90 90" fill="#ffffff" width="16px" height="16px" style="vertical-align: top;">
+    <path 
+      d="M 20.334 2 c 0.392 0 0.761 0.212 0.963 0.552 l 11.285 19.017 c 0.199 0.336 0.208 0.759 0.024 1.103 
+         l -6.997 13.034 c -1.077 2.006 -0.719 4.434 0.891 6.044 l 10.876 10.876 l 10.876 10.876 
+         c 0.967 0.967 2.254 1.5 3.623 1.5 c 0.842 0 1.679 -0.211 2.422 -0.609 l 13.034 -6.997 
+         c 0.163 -0.087 0.346 -0.133 0.53 -0.133 c 0.201 0 0.399 0.054 0.572 0.157 l 19.017 11.285 
+         c 0.487 0.289 0.683 0.895 0.457 1.409 c -1.654 3.763 -4.605 10.528 -5.789 13.547 
+         c -0.147 0.374 -0.34 0.667 -0.575 0.871 C 78.885 86.833 75.455 88 71.345 88 
+         c -11.841 0 -28.805 -9.608 -44.271 -25.074 C 17.172 53.024 9.436 42.21 5.291 32.476 
+         C 2.19 25.191 -0.297 15.111 5.47 8.459 c 0.204 -0.235 0.497 -0.429 0.871 -0.575 
+         C 9.36 6.7 16.125 3.748 19.888 2.095 C 20.031 2.032 20.181 2 20.334 2 z"
+    />
+</svg></a>
+                                                                </li>
+                                                                <li class="list-inline-item">
+                                                                        <a href="mailto:amii@cc.cc" class="social-link bg-primary" onClick="click_call('e');open_not_email()" data-bs-toggle='tooltip' data-bs-placement='top' data-bs-original-title='이메일'><svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"   fill="#ffffff" width="18px" height="18px" style="vertical-align: top;">
+  <g id="Email">
+    <path d="M15.625,2.5H4.375A3.125,3.125,0,0,0,1.25,5.625V14.375A3.125,3.125,0,0,0,4.375,17.5H15.625A3.125,3.125,0,0,0,18.75,14.375V5.625A3.125,3.125,0,0,0,15.625,2.5ZM4.375,3.75H15.625A1.875,1.875,0,0,1,17.125,4.76L11.25,9.87a1.875,1.875,0,0,1-2.5,0L2.875,4.76A1.875,1.875,0,0,1,4.375,3.75ZM15.625,16.25H4.375A1.875,1.875,0,0,1,2.5,14.375V5.85L8.762,11.2a3.125,3.125,0,0,0,4.176,0L17.5,5.85V14.375A1.875,1.875,0,0,1,15.625,16.25Z"/>
+  </g>
+</svg></a>
+                                                                </li>
+                                                                <li class="list-inline-item">
+                                                                        <a href="https://m.me/100084683254804" target='_blank' class="social-link facebook-messenger-active" data-bs-toggle='tooltip' data-bs-placement='bottom' data-bs-original-title='Facebook messenger'><svg   viewBox="0 0 24 24"  fill="#0866ff" xmlns="http://www.w3.org/2000/svg" width="19px" height="19px" style="vertical-align: top;">
+  <g transform="scale(0.024)">
+    <path
+      d="m 1000.94,485.90553 c 0,278.68297 -218.33611,484.99554 -500.00001,484.99554 -50.58364,0 -99.1207,-6.66838 -144.74082,-19.2103 -8.86599,-2.45104 -18.28875,-1.75604 -26.70037,1.94548 l -99.24741,43.81288 c -25.95418,11.46807 -55.25663,-6.99732 -56.12697,-35.36414 l -2.72879,-88.95303 C 171.05517,862.18098 166.12877,851.925 157.95777,844.63842 60.667611,757.62959 0.940002,631.68181 0.940002,485.90553 0.940002,207.23536 219.27609,0.91 500.93999,0.91 782.60389,0.91 1000.94,207.23536 1000.94,485.90553 Z"/>
+    <path
+      d="M 636.7009,625.519 810.78129,356.48533 c 17.50544,-27.04083 -14.91617,-58.51529 -41.42711,-40.22782 l -181.7215,125.3411 c -6.12569,4.23141 -14.19685,4.34532 -20.43517,0.30334 L 405.91119,337.55278 c -13.65289,-8.82887 -31.87892,-4.9264 -40.70652,8.72649 L 191.11149,615.32573 c -17.50544,27.04083 14.91617,58.5153 41.42583,40.22655 L 414.29721,530.19966 c 6.12569,-4.23141 14.19685,-4.34532 20.44797,-0.30334 l 161.26073,104.34916 c 13.65416,8.82888 31.87892,4.92641 40.70779,-8.72648 z" 
+      fill="#ffffff"/>
+  </g>
+</svg></a>
+                                                                </li>
+                                                                <li class="list-inline-item">
+                                                                        <a href="https://t.me/amiichannn" target='_blank'  class="social-link telegram-active" data-bs-toggle='tooltip' data-bs-placement='bottom' data-bs-original-title='Telegram'><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="19px" height="19px" fill="#ffffff" style="vertical-align: top;"><title>Telegram</title><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+                                                                </li>
+                                                        </ul>
+                                                </div>
+                                                <div class="tooltip-custom" id="tooltip">상대방이 전화 연결을 허용하지 않았습니다.</div>
+
+                                        </div>
+                                </div>
+                                <!--end blog-author-sidebar-->
+                        </div>
+
+<style>
+.write-fixed-width {
+        width: 380px; /* 기본 고정 너비 */
+        min-width: 380px;
+        max-width: 400px;
+}
+/* 모바일 화면 폭이 380px 이하일 경우 */
+@media (max-width: 380px) {
+        .write-fixed-width {
+                width: 99%; /* 화면 폭의 98%로 설정 */
+                min-width: auto; /* 최소 너비 제한 해제 */
+                max-width: none; /* 최대 너비 제한 해제 */
+        }
+}
+
+.card-fixed-width {
+        width: 380px; /* 기본 고정 너비 */
+        min-width: 380px;
+        max-width: 400px;
+        border: 1px solid #e1e0fe;
+}
+
+/* 모바일 화면 폭이 380px 이하일 경우 */
+@media (max-width: 400px) {
+        .card-fixed-width {
+                width: 99%; /* 화면 폭의 98%로 설정 */
+                min-width: auto; /* 최소 너비 제한 해제 */
+                max-width: none; /* 최대 너비 제한 해제 */
+        }
+}
+
+.cursor-pointer {
+    cursor: pointer;
+  }
+
+
+.posting-text-color
+{
+        color:#3d454e;
+}
+</style>
+
+                <!--end col-->
+
+                        <div class="d-flex justify-content-center mb-2">
+                                <div class="card bg-white text-center card-fixed-width">
+                                        <div class="p-3 text-start" style="text-align:left;">
+                                                <div class="d-flex align-items-center">
+                                                        <div class="fs-20 posting-text-color text-start flex-grow-1" style="font-size: 20px;font-weight: 600;min-width: 0; line-height: 120%;">
+                                                                <a class='bg-light text-dark p-2 d-block text-decoration-none' href='https://x.com/Amizinha_x' target='_blank'><div style='display: flex; align-items: center;'>
+                                                                                                                                <div style='width: 23px; display: flex; align-items: center;margin-left:-3px'>
+                                                                                                                                        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="#000000" style="vertical-align: top;"><title>X</title><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>&nbsp; 
+                                                                                                                                </div>
+                                                                                                                                <div class='text-primary' style='flex: 1; display: flex; align-items: center; word-break: break-word;'>Twitter</div>
+                                                                                                                        </div>
+                                                                                                                </a>                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                        <div class="d-flex justify-content-center mb-2">
+                                <div class="card bg-white text-center card-fixed-width">
+                                        <div class="p-3 text-start" style="text-align:left;">
+                                                <div class="d-flex align-items-center">
+                                                        <div class="fs-20 posting-text-color text-start flex-grow-1" style="font-size: 20px;font-weight: 600;min-width: 0; line-height: 120%;">
+                                                                <a class='bg-light text-dark p-2 d-block text-decoration-none' href='https://www.instagram.com/emilyy__e/' target='_blank'><div style='display: flex; align-items: center;'>
+                                                                                                                                <div style='width: 23px; display: flex; align-items: center;margin-left:-3px'>
+                                                                                                                                        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="#FF0069" style="vertical-align: top;"><title>Instagram</title><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>&nbsp; 
+                                                                                                                                </div>
+                                                                                                                                <div class='text-primary' style='flex: 1; display: flex; align-items: center; word-break: break-word;'>Instagram</div>
+                                                                                                                        </div>
+                                                                                                                </a>                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                        <div class="d-flex justify-content-center mb-2">
+                                <div class="card bg-white text-center card-fixed-width">
+                                        <div class="p-3 text-start" style="text-align:left;">
+                                                <div class="d-flex align-items-center">
+                                                        <div class="fs-20 posting-text-color text-start flex-grow-1" style="font-size: 20px;font-weight: 600;min-width: 0; line-height: 120%;">
+                                                                <a class='bg-light text-dark p-2 d-block text-decoration-none' href='https://www.facebook.com/profile.php?id=100084683254804' target='_blank'><div style='display: flex; align-items: center;'>
+                                                                                                                                <div style='width: 23px; display: flex; align-items: center;margin-left:-3px'>
+                                                                                                                                        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="#0866FF" style="vertical-align: top;"><title>Facebook</title><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>&nbsp; 
+                                                                                                                                </div>
+                                                                                                                                <div class='text-primary' style='flex: 1; display: flex; align-items: center; word-break: break-word;'>Facebook</div>
+                                                                                                                        </div>
+                                                                                                                </a>                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
         </div>
+        <!--end row-->
 
-        <div id="result" style="display: none;">
-            <div class="strategy-box basic-strategy">
-                <h3>기본 전략</h3>
-                <div id="basic-strategy-content"></div>
-            </div>
 
-            <div class="strategy-box exclusive-strategy">
-                <h3>향상된 전략 (배타적 수식어 활용)</h3>
-                <div id="exclusive-strategy-content"></div>
-            </div>
+</div>
 
-            <div class="guide-section">
-                <h3>필수 가이드</h3>
-                <ul>
-                    <li>아이템 레벨 = (아이템1 + 아이템2)/2 + 2</li>
-                    <li>품질 20% 이상 추천</li>
-                    <li>배타적 수식어:
-                        <ul>
-                            <li>멀티모드 (가장 저렴하고 안전한 옵션)</li>
-                            <li>균열 (Fractured)</li>
-                            <li>기습 (Eldritch)</li>
-                            <li>에센스 (Essence)</li>
-                            <li>제작된 접두사/접미사</li>
-                            <li>야수 (Beast)</li>
-                        </ul>
-                    </li>
-                    <li>실패 시 2p 이상 아이템은 재사용 가능</li>
-                    <li>배타적 수식어는 서로 겹칠 수 없음</li>
-                </ul>
-            </div>
+<!--end container-->
+
+
+<div class="powered-by">
+                        <a href='/' class="badge rounded-pill bg-dark" >&nbsp;<span style='font-weight:500;'>cc.cc</span>&nbsp;</a>
+</div>
+<!-- JAVASCRIPT -->
+
+
+<!-- Image Gallery MODAL -->
+<div class="modal fade" id="imageGalleryModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content" style="background-color: #78787f; border-color: #78787f;">
+			<div class="modal-body">
+				<div class="auth-content text-center" id="image_gallery_list" data-bs-dismiss="modal" aria-label="Close"></div>
+				<div class="auth-content text-center" id="loading_image_gallery_list" style="display:none">
+					<div class="spinner-border text-black m-1" role="status"></div>
+				</div>
+			</div>
+			<!--end modal-body-->
+		</div>
+		<!--end modal-content-->
+	</div>
+	<!--end modal-dialog-->
+</div>
+
+
+<!-- paypal MEMO MODAL -->
+<div class="modal fade" id="paypalMemoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                        <div class="modal-body p-5">
+                                <div class="position-absolute end-0 top-0 p-3">
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <div class="w-100">
+
+                                        <div class="mb-3">
+                                                <textarea class="form-control" id="paypal_memo" placeholder="메시지를 입력하세요" rows="3" autocomplete="off"></textarea>
+                                        </div>
+                                        <div class="mb-2">
+                                                <form id='paypal_memo_form' class="auth-form">
+                                                <input type='hidden' id='paypal_memo_btn'>
+                                                <input type='hidden' id='paypal_memo_item_name'>
+                                                <input type='hidden' id='paypal_memo_business'>
+                                                <input type='hidden' id='paypal_memo_amount'>
+                                                <input type='hidden' id='paypal_memo_currency_code'>
+                                                <input type='hidden' id='paypal_memo_shipping'>
+                                                <input type='hidden' id='paypal_memo_short_code_val'>
+                                                <input type='hidden' id='paypal_memo_p'>
+                                                </form>
+
+                                                <button type="button" class="btn btn-primary w-100" onClick='send_paypal()'>
+                                                        다음                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4 12H20M20 12L14 6M20 12L14 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                </button>
+                                        </div>
+                                        <div class="mb-1 text-center">
+                                                안전한 결제를 위해 PayPal로 리디렉션됩니다.                                        </div>
+                                </div>
+                        </div>
+
+			<!--end modal-body-->
+		</div>
+		<!--end modal-content-->
+	</div>
+	<!--end modal-dialog-->
+</div>
+
+
+
+<!-- Report This Link -->
+<div class="modal fade" id="reportThisLinkModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title mt-0">이 링크 신고하기</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                                <div class="auth-content">
+                                        <div class="w-100">
+                                                <form id='report_this_link_form' class="auth-form">
+                                                <input type='hidden' name='short_code' value='amii'>
+                                                        <div class="mb-3">
+                                                                <input type="email" class="form-control" id="report_this_link_email" name="email" maxlength=30 placeholder="이메일을 입력하세요" autocomplete="off" required>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                                <textarea class="form-control" id="report_this_link_comments"  name="comments"  placeholder="메시지를 입력하세요" rows="3" autocomplete="off"  required></textarea>
+                                                        </div>
+
+                                                        <div class="text-center">
+                                                                <button type="submit" class="btn btn-primary w-100" id='btn_report_this_link'>이 링크 신고하기</button>
+                                                                <div class="spinner-border text-primary m-1" role="status" id='loading_report_this_link' style='display:none'></div>
+                                                        </div>
+                                                </form>
+                                        </div>
+                                </div>
+                        </div>
+                        <!--end modal-body-->
+                </div>
+                <!--end modal-content-->
         </div>
-    </div>
+        <!--end modal-dialog-->
+</div>
 
-    <script>
 
-const strategies = {
-    '0_2': {
-        basic: {
-            steps: [
-                '목표: 접두어 0개, 접미어 2개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 0p/1s 아이템 (원하는 접미어 1개)',
-                '두 번째 아이템 준비:',
-                '- 0p/1s 아이템 (다른 원하는 접미어)',
-                '성공률: ~52%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 0개, 접미어 2개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 0p/1s 아이템 (원하는 접미어 1개)',
-                '- 배타적 접두어 추가',
-                '두 번째 아이템 준비:',
-                '- 0p/1s 아이템 (다른 원하는 접미어)',
-                '- 배타적 접두어 추가',
-                '성공률: ~45%',
-                '팁: 배타적 접두어가 선택되면 접미어가 많이 선택됨'
-            ]
-        }
-    },
-    '0_3': {
-        basic: {
-            steps: [
-                '목표: 접두어 0개, 접미어 3개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 0p/2s 아이템 (원하는 접미어 2개)',
-                '두 번째 아이템 준비:',
-                '- 0p/1s 아이템 (남은 원하는 접미어)',
-                '성공률: ~10%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 0개, 접미어 3개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 0p/2s 아이템 (원하는 접미어 2개)',
-                '- 배타적 접두어 추가',
-                '두 번째 아이템 준비:',
-                '- 0p/1s 아이템 (마지막 원하는 접미어)',
-                '- 배타적 접두어 추가',
-                '성공률: ~35%',
-                '팁: 배타적 접두어로 접미어 선택 확률 증가'
-            ]
-        }
-    },
-    '1_2': {
-        basic: {
-            steps: [
-                '목표: 접두어 1개, 접미어 2개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/1s 아이템 (원하는 접두어 + 원하는 접미어 1개)',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (같은 접두어 + 다른 원하는 접미어)',
-                '성공률: ~30%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 1개, 접미어 2개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/1s 아이템 (원하는 접두어 + 원하는 접미어 1개)',
-                '- 배타적 접두어 추가',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (같은 접두어 + 다른 원하는 접미어)',
-                '- 배타적 접두어 추가',
-                '성공률: ~40%',
-                '팁: 같은 접두어를 사용해 접두어 보존'
-            ]
-        }
-    },
-    '1_3': {
-        basic: {
-            steps: [
-                '목표: 접두어 1개, 접미어 3개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/2s 아이템 (원하는 접두어 + 원하는 접미어 2개)',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (같은 접두어 + 마지막 원하는 접미어)',
-                '성공률: ~25%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 1개, 접미어 3개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/2s 아이템 (원하는 접두어 + 원하는 접미어 2개)',
-                '- 배타적 접두어 추가',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (같은 접두어 + 마지막 접미어)',
-                '- 배타적 접두어 추가',
-                '성공률: ~35%',
-                '팁: 같은 접두어로 보존하고 배타적으로 접미어 선택 확률 증가'
-            ]
-        }
-    },
-    '2_0': {
-        basic: {
-            steps: [
-                '목표: 접두어 2개, 접미어 0개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/0s 아이템 (원하는 접두어 1개)',
-                '두 번째 아이템 준비:',
-                '- 1p/0s 아이템 (다른 원하는 접두어)',
-                '성공률: ~52%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 2개, 접미어 0개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/0s 아이템 (원하는 접두어 1개)',
-                '- 배타적 접미어 추가',
-                '두 번째 아이템 준비:',
-                '- 1p/0s 아이템 (다른 원하는 접두어)',
-                '- 배타적 접미어 추가',
-                '성공률: ~45%',
-                '팁: 배타적 접미어가 선택되면 접두어 선택 확률 증가'
-            ]
-        }
-    },
-    '2_1': {
-        basic: {
-            steps: [
-                '목표: 접두어 2개, 접미어 1개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/1s 아이템 (원하는 접두어 1개 + 원하는 접미어)',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (다른 원하는 접두어 + 같은 접미어)',
-                '성공률: ~30%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 2개, 접미어 1개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/1s 아이템 (원하는 접두어 1개 + 원하는 접미어)',
-                '- 배타적 접미어 추가',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (다른 원하는 접두어 + 같은 접미어)',
-                '- 배타적 접미어 추가',
-                '성공률: ~40%',
-                '팁: 같은 접미어로 접미어 보존, 배타적으로 접두어 선택 확률 증가'
-            ]
-        }
-    },
-    '2_2': {
-        basic: {
-            steps: [
-                '목표: 접두어 2개, 접미어 2개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/2s 아이템 (원하는 접두어 1개 + 원하는 접미어 2개)',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (다른 원하는 접두어 + 접미어 중 하나)',
-                '성공률: ~20%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 2개, 접미어 2개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/2s 아이템 (원하는 접두어 1개 + 원하는 접미어 2개)',
-                '- 배타적 접미어 추가',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (다른 원하는 접두어 + 접미어 중 하나)',
-                '- 배타적 접미어 추가',
-                '성공률: ~30%',
-                '팁: 배타적 수식어로 원하는 접두/접미어 선택 확률 증가'
-            ]
-        }
-    },
-    '2_3': {
-        basic: {
-            steps: [
-                '목표: 접두어 2개, 접미어 3개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 1p/2s 아이템 (원하는 접두어 1개 + 원하는 접미어 2개)',
-                '두 번째 아이템 준비:',
-                '- 1p/1s 아이템 (다른 원하는 접두어 + 마지막 접미어)',
-                '성공률: ~20%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 2개, 접미어 3개인 아이템',
-                '1단계: 접미어 3개 만들기',
-                '- 0p/2s + 0p/1s 아이템으로 접미어 3개 확보 (배타적 전략)',
-                '2단계: 접두어 추가',
-                '- 1p/3s + 1p/0s 아이템으로 접두어 추가',
-                '- 각 단계마다 배타적 수식어 활용',
-                '성공률: ~25%',
-                '팁: 단계별로 진행, 실패시 3s 아이템 재사용'
-            ]
-        }
-    },
-    '3_0': {
-        basic: {
-            steps: [
-                '목표: 접두어 3개, 접미어 0개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 2p/0s 아이템 (원하는 접두어 2개)',
-                '두 번째 아이템 준비:',
-                '- 1p/0s 아이템 (마지막 원하는 접두어)',
-                '성공률: ~10%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 3개, 접미어 0개인 아이템',
-                '첫 번째 아이템 준비:',
-                '- 2p/0s 아이템 (원하는 접두어 2개)',
-                '- 배타적 접미어 추가',
-                '두 번째 아이템 준비:',
-                '- 1p/0s 아이템 (마지막 원하는 접두어)',
-                '- 배타적 접미어 추가',
-                '성공률: ~35%',
-                '팁: 배타적 접미어로 접두어 선택 확률 증가'
-            ]
-        }
-    },
-    '3_1': {
-        basic: {
-            steps: [
-                '목표: 접두어 3개, 접미어 1개인 아이템',
-                '1단계: 접두어 3개 만들기',
-                '- 2p/0s + 1p/0s 아이템으로 3p 확보',
-                '2단계: 접미어 추가',
-                '- 3p/0s + 0p/1s 아이템 조합',
-                '성공률: ~25%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 3개, 접미어 1개인 아이템',
-                '1단계: 접두어 3개 만들기',
-                '- 2p/0s + 1p/0s (둘 다 배타적 접미어 추가)',
-                '2단계: 접미어 추가',
-                '- 3p/0s + 0p/1s 조합',
-                '- 배타적 수식어로 보호',
-                '성공률: ~35%',
-                '팁: 단계별 진행, 실패시 3p 아이템 재사용'
-            ]
-        }
-    },
-    '3_2': {
-        basic: {
-            steps: [
-                '목표: 접두어 3개, 접미어 2개인 아이템',
-                '1단계: 접두어 3개 만들기',
-                '- 2p/0s + 1p/0s 아이템으로 3p 확보',
-                '2단계: 접미어 추가',
-                '- 3p/0s + 0p/2s 조합',
-                '성공률: ~15%'
-            ]
-        },
-        exclusive: {
-            steps: [
-                '목표: 접두어 3개, 접미어 2개인 아이템',
-                '1단계: 접두어 3개 접미어 1개 만들기',
-               '- 2p/1s + 1p/1s 아이템 (배타적 수식어 활용)',
-               '2단계: 두 번째 접미어 추가',
-               '- 3p/1s + 0p/2s 아이템 조합',
-               '- 각 단계마다 배타적 수식어로 보호',
-               '성공률: ~25%',
-               '팁: 단계별로 진행, 실패시 중간 단계 아이템 재사용'
-           ]
-       }
-   },
-   '3_3': {
-       basic: {
-           steps: [
-               '목표: 접두어 3개, 접미어 3개인 아이템',
-               '1단계: 접두어 3개 만들기',
-               '- 2p/0s + 1p/0s로 3p 확보',
-               '2단계: 접미어 3개 만들기',
-               '- 0p/2s + 0p/1s로 3s 확보',
-               '3단계: 두 아이템 조합',
-               '- 3p/0s + 0p/3s 조합',
-               '성공률: ~10%'
-           ]
-       },
-       exclusive: {
-           steps: [
-               '목표: 접두어 3개, 접미어 3개인 아이템',
-               '1단계: 접두어 3개 만들기',
-               '- 2p/0s + 1p/0s (배타적 접미어로 보호)',
-               '2단계: 접미어 3개 만들기',
-               '- 0p/2s + 0p/1s (배타적 접두어로 보호)',
-               '3단계: 최종 조합',
-               '- 3p/0s + 0p/3s 조합',
-               '- 모든 단계에서 배타적 수식어 활용',
-               '성공률: ~20%',
-               '팁: 각 단계 성공 후 진행, 중간 단계 아이템 보관'
-           ]
-       }
-   }
-};
 
-        function calculateStrategy() {
-            const prefix = document.getElementById('prefixCount').value;
-            const suffix = document.getElementById('suffixCount').value;
-            const strategyKey = `${prefix}_${suffix}`;
 
-            document.getElementById('result').style.display = 'block';
+<style>
+.avatar-lg-send-tip {
+        width: 40px;
+        height: 40px;
+}
+</style>
 
-            if (strategies[strategyKey]) {
-                const strategy = strategies[strategyKey];
 
-                // 기본 전략 표시
-                document.getElementById('basic-strategy-content').innerHTML =
-                    `<ul>${strategy.basic.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
+<!-- Send a Tip -->
+<div class="modal fade" id="sendTipModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title mt-0">팁 보내기</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                                <div class="auth-content">
+                                        <div class="w-100">
+                                                <form id='send_tip_form' class="auth-form">
+                                                        <div class="mb-3">
+                                                                <div class="row">
+                                                                        <div class="d-flex">
+                                                                                <div class="me-3">
+                                                                                        <img src="https://short-img2.cc.cc/2025/202504/20250424/aa18c68a.jpg" alt="amii.cc.cc" class="rounded-circle avatar-lg-send-tip">
+                                                                                </div>
+                                                                                <div>
+                                                                                        <div>
+                                                                                                <b>@amii</b>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                                <script>document.write(atob('YW1paUBjYy5jYw=='));</script>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                                <select class="form-control" id='send_tip_amount' autocomplete="off" style="font-weight: bold; color: var(--bs-primary);" required>
+                                                                <option value="1">$1 USD</option>
+                                                                <option value="2" selected>$2 USD</option>
+                                                                <option value="3">$3 USD</option>
+                                                                <option value="4">$4 USD</option>
+                                                                <option value="5">$5 USD</option>
+                                                                <option value="10">$10 USD</option>
+                                                                <option value="20">$20 USD</option>
+                                                                <option value="30">$30 USD</option>
+                                                                <option value="50">$50 USD</option>
+                                                                <option value="100">$100 USD</option>
+                                                                </select>
+                                                       </div>
 
-                // 배타적 전략 표시
-                document.getElementById('exclusive-strategy-content').innerHTML =
-                    `<ul>${strategy.exclusive.steps.map(step => `<li>${step}</li>`).join('')}</ul>`;
-            } else {
-                document.getElementById('result').innerHTML =
-                    '<div class="error">해당 조합에 대한 전략이 없습니다.</div>';
-            }
-        }
-    </script>
+                                                        <div class="mb-3">
+                                                                <textarea class="form-control" id="send_tip_memo" placeholder="메시지를 입력하세요" rows="3" autocomplete="off"></textarea>
+                                                        </div>
+
+
+                                                        <div class="text-center">
+                                                                <button type="submit" class="btn btn-primary w-100" id='btn_send_tip'>팁 보내기</button>
+                                                                <div class="spinner-border text-primary m-1" role="status" id='loading_send_tip' style='display:none'></div>
+
+                                                        </div>
+                                                </form>
+                                        </div>
+                                </div>
+                        </div>
+                        <!--end modal-body-->
+                </div>
+                <!--end modal-content-->
+        </div>
+        <!--end modal-dialog-->
+</div>
+
+<form target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" id='paypal_payment_form'>
+<input type="hidden" name="cmd" value="_cart">
+<input type="hidden" name="business" id="business" value="">
+<input type="hidden" name="lc" value="US">
+<input type="hidden" name="item_name" id="item_name" value="">
+<input type="hidden" name="item_number" id="item_number" value="">
+<input type="hidden" name="amount" id="amount" value="">
+<input type="hidden" name="currency_code" id="currency_code" value="">
+<input type="hidden" name="button_subtype" value="products">                                   
+<input type="hidden" name="no_note" value="1">
+<input type="hidden" name="no_shipping" id="no_shipping" value="">
+<input type="hidden" name="address_override" id="address_override" value="">
+<input type="hidden" name="rm" value="1">
+<input type="hidden" name="add" value="1">
+<input type="hidden" name="bn" value="PP-ShopCartBF:btn_cart_LG.gif:NonHosted">
+
+<input type="hidden" name="on0" value="Memo">
+<input type="hidden" name="os0" id='os0'value="">
+
+<input type="hidden" name="return" id="return_url" value="">
+<input type="hidden" name="cancel_return" id="cancel_return" value="">
+<input type="hidden" name="notify_url" id="notify_url" value="">
+<input type="hidden" name="charset" value="UTF-8">
+</form>
+
 </body>
-
 </html>
+
+<script>
+
+<iframe src="https://amii.cc.cc/robots.txt" width="0" height="0" frameborder="0"></iframe>
+
+
+
